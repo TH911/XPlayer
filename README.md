@@ -1,2 +1,2 @@
 # XPlayer
- A simple static music player
+ A simple static music player.
