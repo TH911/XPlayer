@@ -30,6 +30,7 @@ function initAudioEvent(index) {
     audio.addEventListener('loadedmetadata', function() {
         // Get how long the song is
         const duration = audio.duration;
+        console.log("the duration is:" + duration);
         var len=document.getElementById("audio-length-total");
         len.textContent = transTime(Math.ceil(duration));
     });
