@@ -22,17 +22,19 @@ function initAudioEvent(index) {
     var audioPlayer = document.getElementById('audioPlayer' + index);
 
     // hack iOS which can't get duration.
-    audio.muted = true;
-    audio.play();
-    audio.pause();
-    audio.muted = false;
+    audio.addEventListener('canplay', function(){
+        audio.muted = true;
+        audio.play();
+        audio.pause();
+        audio.muted = false;
 
-    audio.addEventListener('loadedmetadata', function() {
-        // Get how long the song is
-        const duration = audio.duration;
-        console.log("the duration is:" + duration);
-        var len=document.getElementById("audio-length-total");
-        len.textContent = transTime(Math.ceil(duration));
+        audio.addEventListener('loadedmetadata', function() {
+            // Get how long the song is
+            const duration = audio.duration;
+            console.log("the duration is:" + duration);
+            var len=document.getElementById("audio-length-total");
+            len.textContent = transTime(Math.ceil(duration));
+        });
     });
 
     // Update the progress bar
