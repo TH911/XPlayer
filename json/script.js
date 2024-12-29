@@ -27,7 +27,6 @@ function solve(json){
     }
     return json2;
 }
-
 function read_tag(i){
     if(i == files.length){
         console.log(out_json);
@@ -36,10 +35,10 @@ function read_tag(i){
 
         var json = "{\"data\"\:\[";
 
-        json = json + "{\"song_name\"\:\"" + out_json[0][0] + "\",\"artist\"\:\"" + out_json[0][1] + "\",\"album\"\:\"" + out_json[0][2] + "\",\"lrc_name\"\:\"" + "1" + "\"\}";
+        json = json + "{\"song_name\"\:\"" + out_json[0][0] + "\",\"artist\"\:\"" + out_json[0][1] + "\",\"album\"\:\"" + out_json[0][2] + "\",\"lrc_name\"\:\"" + 1 + "\",\"duration\"\:\"" + out_json[0][3] + "\"\}";
 
         for(var i = 1;i < files.length; i++){
-            json = json + ",{\"song_name\"\:\"" + out_json[i][0] + "\",\"artist\"\:\"" + out_json[i][1] + "\",\"album\"\:\"" + out_json[i][2] + "\",\"lrc_name\"\:\"" + (i+1) + "\"\}";
+            json = json + ",{\"song_name\"\:\"" + out_json[i][0] + "\",\"artist\"\:\"" + out_json[i][1] + "\",\"album\"\:\"" + out_json[i][2] + "\",\"lrc_name\"\:\"" + (i+1) + "\",\"duration\"\:\"" + out_json[i][3] + "\"\}";
         }
 
         json = json + "]}";
@@ -61,10 +60,15 @@ function read_tag(i){
     jsmediatags.read(files[i], {
         onSuccess: function(tag) {
             var info = [tag.tags.title || '', tag.tags.artist || '', tag.tags.album || ''];
-            out_json.push(info);
-            console.log("Successed on " + files[i].name);
-            if(i % 10 == 0)showToast("Successed on #" + i);
-            read_tag(i + 1);
+            var tool = document.createElement('audio');
+            tool.src = URL.createObjectURL(files[i]);
+            tool.addEventListener('loadedmetadata',function() {
+                info[3] = tool.duration;
+                out_json.push(info);
+                console.log("Successed on " + files[i].name);
+                if(i % 10 == 0)showToast("Successed on #" + i);
+                read_tag(i + 1);
+            });
         },
         onError: function(error) {
             showToast("failed on " + files[i].name);

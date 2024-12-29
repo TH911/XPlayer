@@ -88,7 +88,7 @@ function mediaSessionAPI(that,name,lyric){
         });
         navigator.mediaSession.setActionHandler("seekforward", function () {
             var audio = document.getElementById("audio");
-            audio.currentTime+=Math.min(10,audio.duration-audio.currentTime);
+            audio.currentTime+=Math.min(10,PLAYER.duration-audio.currentTime);
         });
         navigator.mediaSession.setActionHandler("previoustrack", function () {
             that.playPrev(that);
@@ -137,6 +137,8 @@ var Selected = function() {
     this.audio_name = [];
     this.audio_artist = [];
     this.audio_album = [];
+    this.duration = 0;
+    this.audio_duration = [];
 };
 
 Selected.prototype = {
@@ -260,6 +262,7 @@ Selected.prototype = {
                     that.audio_name[v.lrc_name] = v.song_name;
                     that.audio_artist[v.lrc_name] = v.artist;
                     that.audio_album[v.lrc_name] = v.album;
+                    that.audio_duration[v.lrc_name] = v.duration;
                     li.appendChild(a);
                     li.id = "playlist-" + i;
                     fragment.appendChild(li);
@@ -291,7 +294,7 @@ Selected.prototype = {
         document.getElementById('songinfo_name').textContent = this.audio_name[songName];
         document.getElementById('songinfo_artist').textContent = "歌手: " + this.audio_artist[songName];
         document.getElementById('songinfo_album').textContent = "专辑: " + this.audio_album[songName];
-
+        this.duration = this.audio_duration[songName];
 
         sessionStorage.setItem("audio_name",this.audio_name[songName]);
         mediaSessionAPI(this,sessionStorage.getItem("audio_name"),' ');

@@ -22,19 +22,13 @@ function initAudioEvent(index) {
     var audioPlayer = document.getElementById('audioPlayer' + index);
 
     // hack iOS which can't get duration.
-    audio.addEventListener('canplay', function(){
-        audio.muted = true;
-        audio.play();
-        audio.pause();
-        audio.muted = false;
-
-        audio.addEventListener('loadedmetadata', function() {
-            // Get how long the song is
-            const duration = audio.duration;
-            console.log("the duration is:" + duration);
-            var len=document.getElementById("audio-length-total");
-            len.textContent = transTime(Math.ceil(duration));
-        });
+    // update:define it in the json.
+    audio.addEventListener('loadedmetadata', function() {
+        // Get how long the song is
+        const duration = PLAYER.duration;
+        console.log("the duration is:" + duration);
+        var len=document.getElementById("audio-length-total");
+        len.textContent = transTime(Math.ceil(duration));
     });
 
     // Update the progress bar
@@ -73,7 +67,7 @@ function initAudioEvent(index) {
             var pgsWidth = parseFloat(window.getComputedStyle(progressBarBg, null).width.replace('px', ''));
             var rate = event.offsetX / pgsWidth;
             sessionStorage.setItem("flag_canplay","false");
-            audio.currentTime = audio.duration * rate;
+            audio.currentTime = PLAYER.duration * rate;
             updateProgress(audio, index);
         }
     }, false);
@@ -148,7 +142,7 @@ function dragProgressDotEvent(audio, index) {
             var pgsWidth = parseFloat(window.getComputedStyle(progressBarBg, null).width.replace('px', ''));
             var rate = (position.oriOffestLeft + length) / pgsWidth;
             sessionStorage.setItem("flag_canplay","false");
-            audio.currentTime = audio.duration * rate;
+            audio.currentTime = PLAYER.duration * rate;
             updateProgress(audio, index);
         }
     }
@@ -164,7 +158,7 @@ function dragProgressDotEvent(audio, index) {
  * @param {number} index 索引，表示第几个音频（从0开始）
  */
 function updateProgress(audio, index) {
-    var value = audio.currentTime / audio.duration;
+    var value = audio.currentTime / PLAYER.duration;
     document.getElementById('progressBar' + index).style.width = value * 100 + '%';
     document.getElementById('progressDot' + index).style.left = value * 100 + '%';
     document.getElementById('audioCurTime' + index).innerText = transTime(audio.currentTime);
