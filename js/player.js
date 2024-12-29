@@ -286,7 +286,7 @@ Selected.prototype = {
         songinfo_audio.textContent = this.playlist.getElementsByTagName("li")[songName-1].textContent;
         document.title = songinfo_audio.textContent + " | XPlayer";
 
-        document.getElementById("cover_img").src = "/music/" + songName + '.webp';
+        document.getElementById("cover_img").src = "./music/" + songName + '.webp';
 
         document.getElementById('songinfo_name').textContent = this.audio_name[songName];
         document.getElementById('songinfo_artist').textContent = "歌手: " + this.audio_artist[songName];

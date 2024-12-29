@@ -21,6 +21,12 @@ function initAudioEvent(index) {
     var audio = document.getElementsByTagName('audio')[index];
     var audioPlayer = document.getElementById('audioPlayer' + index);
 
+    // hack iOS which can't get duration.
+    audio.muted = true;
+    audio.play();
+    audio.pause();
+    audio.muted = false;
+
     audio.addEventListener('loadedmetadata', function() {
         // Get how long the song is
         const duration = audio.duration;
