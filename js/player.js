@@ -120,6 +120,9 @@ async function pipWindowCreate(Width,Height) {
             keydownForPipWindow=0;
         }
     });
+    pipWindow.addEventListener('unload',function() {
+        keydownForPipWindow=0;
+    });
 }
 async function pipWindowFill(text,line) {
     var tool = document.createElement('div');
