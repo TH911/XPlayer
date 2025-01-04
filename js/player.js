@@ -1,10 +1,9 @@
 /*
- * Selected | a collection of songs that I love
- * v0.3.0
+ * XPlayer | a simple static music player
  * also as a showcase that shows how to sync lyric with the HTML5 audio tag
- * Wayou  Apr 5th,2014
- * view on GitHub:https://github.com/wayou/selected
- * see the live site:http://wayou.github.io/selected/
+ * TH911  Jan 1th,2025
+ * view on GitHub:https://github.com/TH911/th911.github.io
+ * see the live site:http://th911.us.kg/XPlayer
  * songs used in this project are only for educational purpose
  */
 
@@ -134,6 +133,7 @@ var Selected = function() {
     this.currentIndex = 0;
     this.lyric = null;
     this.lyricStyle = 0; //random num to specify the different class name for lyric
+    this.last = -1;
     this.audio_name = [];
     this.audio_artist = [];
     this.audio_album = [];
@@ -191,12 +191,14 @@ Selected.prototype = {
             that.setClass(tmp,selectedIndex);
             var songName = e.target.getAttribute('data-name');
             window.location.hash = songName;
+            that.clear();
             that.play(songName);
         }, false);
         this.audio.onended = function() {
             that.ending(that);
         }
         this.audio.onerror = function(e) {
+            that.ending(that);
             that.lyricContainer.textContent = '歌曲加载失败,请检查网络或清空缓存并重试';
         };
 
@@ -239,6 +241,77 @@ Selected.prototype = {
             allSongs[i].className = '';
         };
         currentSong.className = 'current-song';
+        this.audio.addEventListener('canplay', function() {
+            var flag_canplay = sessionStorage.getItem("flag_canplay");
+            // console.log("flag_canplay = " + flag_canplay);
+            if(flag_canplay == null || flag_canplay == "true"){
+                // console.log("audio canplay.");
+                sessionStorage.setItem("flag_canplay","true");
+                that.getLyric(that.audio.src.replace('.mp3', '.lrc'));
+                that.audio.play();
+            }else sessionStorage.setItem("flag_canplay","true");
+        });
+        //sync the lyric
+        this.audio.addEventListener("timeupdate", function(e) {
+            if(!that.lyric)return;
+            for (var i = 0, l = that.lyric.length; i <= l; i++) {
+                // try{
+                    //preload the lyric by 0.50s || end
+                    if (i == l || this.currentTime <= that.lyric[i][0] - 0.50){
+                        if(i > 0) i--;
+                        
+                        //handle which song has 2 languages
+                        if(i>0){
+                            if(that.lyric[i][0] == that.lyric[i-1][0])i--;
+                        }
+
+                        var line = document.getElementById('line-' + i);
+                        //randomize the color of the current line of the lyric
+                        line.className = 'current-line-' + that.lyricStyle;
+
+                        if(i+1 < l){
+                            if(that.lyric[i][0] != that.lyric[i+1][0]){
+                                // line.style.animationDuration = that.lyric[i+1][0] - that.lyric[i][0] - 0.2 + 's';
+                            }else if(i+2 < l){
+                                // line.style.animationDuration = that.lyric[i+2][0] - that.lyric[i][0] - 0.2 + 's';
+                            }
+                            //If you want this color a line once
+                            //line.style.animationDuration = "0s";
+                        }
+                        if(i!=that.last){
+                            that.last=i;
+                            document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
+                        }
+
+                        //for the lyric to MediaSession
+                        var lyric_for_API;
+                        if(i==0||that.lyric[i-1][0]!=that.lyric[i][0])lyric_for_API = that.lyric[i][1];
+                        else lyric_for_API = that.lyric[i-1][1];
+                        if(lyric_for_API.length == 0)lyric_for_API = " ";
+
+                        //sync MediaSession API
+                        mediaSessionAPI(that,sessionStorage.getItem("audio_name"),lyric_for_API);
+
+                        //del the color of which lyric after this.
+                        for(var j = i+1 ; j<l ; j++){
+                            var line = document.getElementById('line-' + j);
+                            line.className='';
+                        }break;
+                    }else{
+                        try{
+                            var line = document.getElementById('line-' + i);
+                        line.className = '';
+                        }catch{
+                            console.log("error on #" + i);
+                        }
+                    }
+                // }
+                // catch {
+                    // break;
+                // }
+            };
+        });
+
         this.play(randomSong);
     },
     initialList: function(ctx) {
@@ -280,6 +353,16 @@ Selected.prototype = {
 
         this.audio.play();
 
+        //To hack iOS,because it will go wrong on iOS
+        var playCount = sessionStorage.getItem("playCount");
+        console.log("playCount=" + playCount);
+        if(playCount==null)playCount = 0;
+        if(++playCount == 10)playCount = 0,sessionStorage.setItem("playCount",0);
+        else{
+            sessionStorage.setItem("playCount",playCount);
+            that.play(songName);
+        }
+
         //scroll to which is playing
         var playlist_ol = document.getElementById("playlist_ol");
         var now = document.getElementById("playlist-" + PLAYER.currentIndex);
@@ -306,78 +389,6 @@ Selected.prototype = {
         this.lyricStyle = Math.floor(Math.random() * 4);
 
         sessionStorage.setItem("flag_canplay","true");
-
-        this.audio.addEventListener('canplay', function() {
-            var flag_canplay = sessionStorage.getItem("flag_canplay");
-            // console.log("flag_canplay = " + flag_canplay);
-            if(flag_canplay == null || flag_canplay == "true"){
-                // console.log("audio canplay.");
-                sessionStorage.setItem("flag_canplay","true");
-                that.getLyric(that.audio.src.replace('.mp3', '.lrc'));
-                that.audio.play();
-            }else sessionStorage.setItem("flag_canplay","true");
-        });
-        var last=-1;
-        //sync the lyric
-        this.audio.addEventListener("timeupdate", function(e) {
-            if(!that.lyric)return;
-            for (var i = 0, l = that.lyric.length; i <= l; i++) {
-                // try{
-                    //preload the lyric by 0.50s || end
-                    if (i == l || this.currentTime <= that.lyric[i][0] - 0.50){
-                        if(i > 0) i--;
-                        
-                        //handle which song has 2 languages
-                        if(i>0){
-                            if(that.lyric[i][0] == that.lyric[i-1][0])i--;
-                        }
-
-                        var line = document.getElementById('line-' + i);
-                        //randomize the color of the current line of the lyric
-                        line.className = 'current-line-' + that.lyricStyle;
-
-                        if(i+1 < l){
-                            if(that.lyric[i][0] != that.lyric[i+1][0]){
-                                // line.style.animationDuration = that.lyric[i+1][0] - that.lyric[i][0] - 0.2 + 's';
-                            }else if(i+2 < l){
-                                // line.style.animationDuration = that.lyric[i+2][0] - that.lyric[i][0] - 0.2 + 's';
-                            }
-                            //If you want this color a line once
-                            //line.style.animationDuration = "0s";
-                        }
-                        if(i!=last){
-                            last=i;
-                            document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
-                        }
-
-                        //for the lyric to MediaSession
-                        var lyric_for_API;
-                        if(i==0||that.lyric[i-1][0]!=that.lyric[i][0])lyric_for_API = that.lyric[i][1];
-                        else lyric_for_API = that.lyric[i-1][1];
-                        if(lyric_for_API.length == 0)lyric_for_API = " ";
-
-                        //sync MediaSession API
-                        mediaSessionAPI(that,sessionStorage.getItem("audio_name"),lyric_for_API);
-
-                        //del the color of which lyric after this.
-                        for(var j = i+1 ; j<l ; j++){
-                            var line = document.getElementById('line-' + j);
-                            line.className='';
-                        }break;
-                    }else{
-                        try{
-                            var line = document.getElementById('line-' + i);
-                        line.className = '';
-                        }catch{
-                            console.log("error on #" + i);
-                        }
-                    }
-                // }
-                // catch {
-                    // break;
-                // }
-            };
-        });
     },
     getLyric: function(url) {
         var that = this,
@@ -434,6 +445,7 @@ Selected.prototype = {
             fragment = document.createDocumentFragment();
         //clear the lyric container first
         this.lyricContainer.innerHTML = '';
+        console.log(lyric);
         var that = this;
         lyric.forEach(function(v, i, a) {
             var line_p = document.createElement('p');
@@ -441,11 +453,6 @@ Selected.prototype = {
             line.id = 'line-' + i;
             line.textContent = v[1];
             line.style.backgroundClip = "text";
-            // for(var j = 0;j < v[1].length;j++){
-            //     var letter = document.createElement('span');
-            //     letter.textContent = v[1][j];
-            //     line.appendChild(letter);
-            // }
             line.addEventListener("click", function(){
                 sessionStorage.setItem("flag_canplay","false");
                 that.audio.currentTime = v[0];
