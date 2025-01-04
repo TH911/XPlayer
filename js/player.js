@@ -204,20 +204,6 @@ Selected.prototype = {
             else that.lyricContainer.textContent = '歌曲加载失败,请检查网络或清空缓存并重试';
         };
 
-        //when play/pause,solve the lyric's animation of color
-        // this.audio.addEventListener('play', function(){
-        //     var lines = document.getElementsByClassName('current-line-' + that.lyricStyle);
-        //     for(var i = 0; i < lines.length;i++){
-        //         // lines[i].style.animationPlayState = "running";
-        //     }
-        // });
-        // this.audio.addEventListener('pause', function(){
-        //     var lines = document.getElementsByClassName('current-line-' + that.lyricStyle);
-        //     for(var i = 0; i < lines.length;i++){
-        //         // lines[i].style.animationPlayState = "paused";
-        //     }
-        // });
-
         //enable keyboard control , spacebar to change the song
         window.addEventListener('keydown', function(e) {
             if(e.code == 'ArrowUp')that.playPrev(that);
@@ -362,6 +348,7 @@ Selected.prototype = {
         this.audio.src = './music/' + songName + '.mp3';
         this.audio.currentTime = 0;
 
+        this.audio.load();
         this.audio.play();
 
         //scroll to which is playing
