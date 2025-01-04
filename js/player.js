@@ -107,6 +107,62 @@ function mediaSessionAPI(that,name,lyric){
     }else return false;
 }
 
+var pipWindow;
+async function pipWindowCreate(Width,Height) {
+    console.log(Width + "x" + Height);
+    pipWindow = await window.documentPictureInPicture.requestWindow({
+        width: Width,
+        height: Height
+    });
+    pipWindow.document.addEventListener("keydown",function(e) {
+        if(e.key == 'p'){
+            pipWindow.close();
+            keydownForPipWindow=0;
+        }
+    });
+}
+async function pipWindowFill(text,line) {
+    var tool = document.createElement('div');
+    tool.id = "tool";
+    tool.textContent = text;
+    tool.style.fontFamily = localStorage.getItem("player_font");
+    tool.style.textShadow = "1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000";
+    tool.style.fontWeight = "bolder";
+    // tool.style.fontSize = parseInt(document.getElementById("lyricWrapper").style.fontSize.split('px')[0]) * 1.4 + 'px';
+    
+    tool.style.fontSize = Math.min(Math.floor((pipWindow.innerWidth-40) / tool.textContent.length),pipWindow.innerHeight-20) + 'px';
+    tool.style.color = ['#FAFA17','#ff1493','#adff2f','#d731f8'][PLAYER.lyricStyle];
+    pipWindow.document.body.innerHTML = '';
+    pipWindow.addEventListener('resize',function() {
+        var tool = pipWindow.document.body.getElementById("tool");
+        tool.fontSize = Math.min(Math.floor((pipWindow.innerWidth-40) / tool.textContent.length),pipWindow.innerHeight-20) + 'px';
+    });
+    tool.style.textAlign = "center";
+    tool.style.lineHeight = pipWindow.innerHeight-20 + 'px';
+    // tool_div.style.display = "flex";
+    // tool_div.style.alignItems = "center";
+    // tool_div.style = "display: block;align-items: center;position:absoultion;text-align:center;left:0;right:0;";
+    // tool_div.appendChild(tool);
+    pipWindow.document.body.appendChild(tool);
+}
+
+var keydownForPipWindow=0;
+document.addEventListener('keydown', function(e){
+    if(e.key!='p')return;
+    if('documentPictureInPicture' in window){
+        ++keydownForPipWindow;
+        // alert("keydownForPipWindow=" + keydownForPipWindow);
+        if(keydownForPipWindow==2){
+            keydownForPipWindow=0;
+            pipWindow.close();
+        }else{
+            pipWindowCreate(300,20);
+        }
+    }else{
+        console.log("pipWindow isn't supported.");
+    }
+});
+
 var PLAYER;
 window.onload = function() {
     //for the color of the menu
@@ -237,6 +293,7 @@ Selected.prototype = {
                 sessionStorage.setItem("flag_canplay","true");
                 that.getLyric(that.audio.src.replace('.mp3', '.lrc'));
                 that.audio.play();
+                pipWindowCreate(300,20);
             }else sessionStorage.setItem("flag_canplay","true");
         });
         //sync the lyric
@@ -279,6 +336,11 @@ Selected.prototype = {
 
                         //sync MediaSession API
                         mediaSessionAPI(that,sessionStorage.getItem("audio_name"),lyric_for_API);
+
+                        // sync pipWindow
+                        if('documentPictureInPicture' in window){
+                            pipWindowFill(lyric_for_API,line);
+                        }
 
                         //del the color of which lyric after this.
                         for(var j = i+1 ; j<l ; j++){
