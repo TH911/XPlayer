@@ -343,6 +343,7 @@ Selected.prototype = {
         xhttp.send();
     },
     play: function(songName) {
+        var that = this;
         //To hack iOS,because it will go wrong on iOS
         var playCount = sessionStorage.getItem("playCount");
         console.log("playCount=" + playCount);
@@ -352,9 +353,7 @@ Selected.prototype = {
             sessionStorage.setItem("playCount",playCount);
             that.play(songName);
         }
-
-
-        var that = this;
+        
         this.lyricContainer.textContent = 'loading song...';
         this.audio.src = './music/' + songName + '.mp3';
         this.audio.currentTime = 0;
