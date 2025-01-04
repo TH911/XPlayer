@@ -119,6 +119,17 @@ async function pipWindowCreate(Width,Height) {
             pipWindow.close();
             keydownForPipWindow=0;
         }
+        if(e.key == ' '){
+            if(PLAYER.audio.paused)PLAYER.audio.play();
+            else PLAYER.audio.pause();
+        }
+        if(e.code == 'ArrowUp')PLAYER.playPrev(PLAYER);
+        else if(e.code == 'ArrowDown')PLAYER.playNext(PLAYER);
+        else if(e.code == 'ArrowLeft'){
+            PLAYER.audio.currentTime-=Math.min(PLAYER.audio.currentTime,10);
+        }else if(e.code == 'ArrowRight'){
+            PLAYER.audio.currentTime+=10;
+        }
     });
     pipWindow.addEventListener('unload',function() {
         keydownForPipWindow=0;
