@@ -251,9 +251,9 @@ Selected.prototype = {
         });
         //sync the lyric
         this.audio.addEventListener("timeupdate", function(e) {
-            if(!that.lyric)return;
-            for (var i = 0, l = that.lyric.length; i <= l; i++) {
-                // try{
+            try{
+                if(!that.lyric)return;
+                for (var i = 0, l = that.lyric.length; i <= l; i++) {
                     //preload the lyric by 0.50s || end
                     if (i == l || this.currentTime <= that.lyric[i][0] - 0.50){
                         if(i > 0) i--;
@@ -303,11 +303,10 @@ Selected.prototype = {
                             console.log("error on #" + i);
                         }
                     }
-                // }
-                // catch {
-                    // break;
-                // }
-            };
+                }
+            }catch{
+
+            }
         });
 
         this.play(randomSong);
