@@ -197,23 +197,22 @@ Selected.prototype = {
             that.ending(that);
         }
         this.audio.onerror = function(e) {
-            that.ending(that);
             that.lyricContainer.textContent = '歌曲加载失败,请检查网络或清空缓存并重试';
         };
 
         //when play/pause,solve the lyric's animation of color
-        this.audio.addEventListener('play', function(){
-            var lines = document.getElementsByClassName('current-line-' + that.lyricStyle);
-            for(var i = 0; i < lines.length;i++){
-                // lines[i].style.animationPlayState = "running";
-            }
-        });
-        this.audio.addEventListener('pause', function(){
-            var lines = document.getElementsByClassName('current-line-' + that.lyricStyle);
-            for(var i = 0; i < lines.length;i++){
-                // lines[i].style.animationPlayState = "paused";
-            }
-        });
+        // this.audio.addEventListener('play', function(){
+        //     var lines = document.getElementsByClassName('current-line-' + that.lyricStyle);
+        //     for(var i = 0; i < lines.length;i++){
+        //         // lines[i].style.animationPlayState = "running";
+        //     }
+        // });
+        // this.audio.addEventListener('pause', function(){
+        //     var lines = document.getElementsByClassName('current-line-' + that.lyricStyle);
+        //     for(var i = 0; i < lines.length;i++){
+        //         // lines[i].style.animationPlayState = "paused";
+        //     }
+        // });
 
         //enable keyboard control , spacebar to change the song
         window.addEventListener('keydown', function(e) {
