@@ -191,7 +191,6 @@ Selected.prototype = {
             that.setClass(tmp,selectedIndex);
             var songName = e.target.getAttribute('data-name');
             window.location.hash = songName;
-            that.clear();
             that.play(songName);
         }, false);
         this.audio.onended = function() {
@@ -222,7 +221,7 @@ Selected.prototype = {
             else if(e.code == 'ArrowDown')that.playNext(that);
             else if(e.code == 'ArrowLeft'){
                 var Song = this.document.getElementById("audio");
-                Song.currentTime-=10;
+                Song.currentTime-=Math.min(Song.currentTime,10);
             }else if(e.code == 'ArrowRight'){
                 var Song = this.document.getElementById("audio");
                 Song.currentTime+=10;
@@ -350,6 +349,7 @@ Selected.prototype = {
         var that = this;
         this.lyricContainer.textContent = 'loading song...';
         this.audio.src = './music/' + songName + '.mp3';
+        this.audio.currentTime = 0;
 
         this.audio.play();
 
