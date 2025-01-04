@@ -198,7 +198,10 @@ Selected.prototype = {
         }
         this.audio.onerror = function(e) {
             console.log("audio load error:" + e);
-            that.lyricContainer.textContent = '歌曲加载失败,请检查网络或清空缓存并重试';
+            var audioErrorCount = sessionStorage.getItem("audioErrorCount");
+            if(audioErrorCount == null)audioErrorCount=0;
+            if(++audioErrorCount<=2)that.play(that.currentIndex+1);
+            else that.lyricContainer.textContent = '歌曲加载失败,请检查网络或清空缓存并重试';
         };
 
         //when play/pause,solve the lyric's animation of color
