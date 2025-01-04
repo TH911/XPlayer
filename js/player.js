@@ -239,7 +239,7 @@ Selected.prototype = {
             allSongs[i].className = '';
         };
         currentSong.className = 'current-song';
-        this.audio.addEventListener('canplay', function() {
+        this.audio.addEventListener('canplaythrough', function() {
             var flag_canplay = sessionStorage.getItem("flag_canplay");
             // console.log("flag_canplay = " + flag_canplay);
             if(flag_canplay == null || flag_canplay == "true"){
