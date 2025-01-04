@@ -304,8 +304,8 @@ Selected.prototype = {
                         }
                     }
                 }
-            }catch{
-
+            }catch(error){
+                console.log("ERROR:" + error);
             }
         });
 
