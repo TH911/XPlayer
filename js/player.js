@@ -197,6 +197,7 @@ Selected.prototype = {
             that.ending(that);
         }
         this.audio.onerror = function(e) {
+            console.log("audio load error:" + e);
             that.lyricContainer.textContent = '歌曲加载失败,请检查网络或清空缓存并重试';
         };
 
@@ -353,7 +354,7 @@ Selected.prototype = {
             sessionStorage.setItem("playCount",playCount);
             that.play(songName);
         }
-        
+
         this.lyricContainer.textContent = 'loading song...';
         this.audio.src = './music/' + songName + '.mp3';
         this.audio.currentTime = 0;
