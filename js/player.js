@@ -351,9 +351,9 @@ Selected.prototype = {
                 sessionStorage.setItem("flag_canplay","true");
                 that.getLyric(that.audio.src.replace('.mp3', '.lrc'));
                 that.audio.play();
-                if('documentPictureInPicture' in window){
-                    pipWindowCreate(300,20);
-                }
+                // if('documentPictureInPicture' in window){
+                //     pipWindowCreate(300,20);
+                // }
             }else sessionStorage.setItem("flag_canplay","true");
         });
         //sync the lyric
