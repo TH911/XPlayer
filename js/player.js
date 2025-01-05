@@ -135,28 +135,61 @@ async function pipWindowCreate(Width,Height) {
         keydownForPipWindow=0;
     });
 }
-async function pipWindowFill(text,line) {
+function pipWindowFillTextLength(text){
+    //get the length(1 for Chinese,0.5 for English).
+    var length = 0;
+    for(var i = 0 ;i < text.length ; i++){
+        var flag = false;
+        var list = [' ',',','.','<','>',';',':','"',"'",'{','}','[',']','-','_','+','=','!','~','`','@','#','$','%','^','&','*','(',')','|','\\'];
+        for(var j = 0; j<list.length ; j++){
+            if(text[i] == list[j]){
+                flag=true;
+                break;
+            }
+        }
+        if('a' <= text[i] && text[i] <= 'z' || 'A' <= text[i] && text[i] <= 'Z' || flag){
+            length +=0.5;
+        }else{
+            length ++;
+        }
+    }return length;
+}
+async function pipWindowFill(text,text_translate) {
     var tool = document.createElement('div');
     tool.id = "tool";
     tool.textContent = text;
     tool.style.fontFamily = localStorage.getItem("player_font");
     tool.style.textShadow = "1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000";
     tool.style.fontWeight = "bolder";
-    // tool.style.fontSize = parseInt(document.getElementById("lyricWrapper").style.fontSize.split('px')[0]) * 1.4 + 'px';
     
-    tool.style.fontSize = Math.min(Math.floor((pipWindow.innerWidth-40) / tool.textContent.length),pipWindow.innerHeight-20) + 'px';
+    var text_length = pipWindowFillTextLength(text);
+    
+    tool.style.fontSize = Math.min(Math.floor((pipWindow.innerWidth-40) / text_length),pipWindow.innerHeight-20) + 'px';
+
     tool.style.color = ['#FAFA17','#ff1493','#adff2f','#d731f8'][PLAYER.lyricStyle];
     pipWindow.document.body.innerHTML = '';
     pipWindow.addEventListener('resize',function() {
-        var tool = pipWindow.document.body.getElementById("tool");
+        var tool = pipWindow.document.getElementById("tool");
         tool.fontSize = Math.min(Math.floor((pipWindow.innerWidth-40) / tool.textContent.length),pipWindow.innerHeight-20) + 'px';
     });
     tool.style.textAlign = "center";
     tool.style.lineHeight = pipWindow.innerHeight-20 + 'px';
-    // tool_div.style.display = "flex";
-    // tool_div.style.alignItems = "center";
-    // tool_div.style = "display: block;align-items: center;position:absoultion;text-align:center;left:0;right:0;";
-    // tool_div.appendChild(tool);
+
+    if(text_translate != null){
+        var text_translate_length = pipWindowFillTextLength(text_translate);
+        tool.style.fontSize = Math.min(Math.min(Math.floor((pipWindow.innerWidth-40) / text_length),(pipWindow.innerHeight-20)/2) , Math.min(Math.floor((pipWindow.innerWidth-40) / text_translate_length),pipWindow.innerHeight-20)) + 'px';
+        tool.textContent = text + '' + text_translate;
+        var tool_text = document.createElement('div');
+        var tool_text_translate = document.createElement('div');
+        tool.style.lineHeight = Math.floor((pipWindow.innerHeight-20)/2) + 'px';
+        tool.textContent = "";
+        tool_text.textContent = text;
+        tool_text_translate.textContent = text_translate;
+        tool_text_translate.style.color = "#fff";
+        tool.appendChild(tool_text);
+        tool.appendChild(tool_text_translate);
+    }
+
     pipWindow.document.body.appendChild(tool);
 }
 
@@ -299,7 +332,18 @@ Selected.prototype = {
             allSongs[i].className = '';
         };
         currentSong.className = 'current-song';
+        
+        var canplayCounter = 0;
+        
         this.audio.addEventListener('canplay', function() {
+            //To hack iOS,because it will go wrong on iOS
+            canplayCounter++;
+            if(canplayCounter == 1){
+                that.play(that.currentIndex+1 == 1?2:1,that.currentIndex+1);
+            }else{
+                canplayCounter = 0;
+            }
+
             var flag_canplay = sessionStorage.getItem("flag_canplay");
             // console.log("flag_canplay = " + flag_canplay);
             if(flag_canplay == null || flag_canplay == "true"){
@@ -307,7 +351,9 @@ Selected.prototype = {
                 sessionStorage.setItem("flag_canplay","true");
                 that.getLyric(that.audio.src.replace('.mp3', '.lrc'));
                 that.audio.play();
-                pipWindowCreate(300,20);
+                if('documentPictureInPicture' in window){
+                    pipWindowCreate(300,20);
+                }
             }else sessionStorage.setItem("flag_canplay","true");
         });
         //sync the lyric
@@ -328,24 +374,24 @@ Selected.prototype = {
                         //randomize the color of the current line of the lyric
                         line.className = 'current-line-' + that.lyricStyle;
 
-                        if(i+1 < l){
-                            if(that.lyric[i][0] != that.lyric[i+1][0]){
-                                // line.style.animationDuration = that.lyric[i+1][0] - that.lyric[i][0] - 0.2 + 's';
-                            }else if(i+2 < l){
-                                // line.style.animationDuration = that.lyric[i+2][0] - that.lyric[i][0] - 0.2 + 's';
-                            }
-                            //If you want this color a line once
-                            //line.style.animationDuration = "0s";
-                        }
+                        // if(i+1 < l){
+                        //     if(that.lyric[i][0] != that.lyric[i+1][0]){
+                        //         // line.style.animationDuration = that.lyric[i+1][0] - that.lyric[i][0] - 0.2 + 's';
+                        //     }else if(i+2 < l){
+                        //         // line.style.animationDuration = that.lyric[i+2][0] - that.lyric[i][0] - 0.2 + 's';
+                        //     }
+                        //     //If you want this color a line once
+                        //     //line.style.animationDuration = "0s";
+                        // }
                         if(i!=that.last){
                             that.last=i;
                             document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
                         }
 
                         //for the lyric to MediaSession
-                        var lyric_for_API;
-                        if(i==0||that.lyric[i-1][0]!=that.lyric[i][0])lyric_for_API = that.lyric[i][1];
-                        else lyric_for_API = that.lyric[i-1][1];
+                        var lyric_for_API,text_translate=null;
+                        lyric_for_API = that.lyric[i][1];
+                        if(i+1 < l && that.lyric[i][0] == that.lyric[i+1][0])text_translate = that.lyric[i+1][1];
                         if(lyric_for_API.length == 0)lyric_for_API = " ";
 
                         //sync MediaSession API
@@ -353,7 +399,7 @@ Selected.prototype = {
 
                         // sync pipWindow
                         if('documentPictureInPicture' in window){
-                            pipWindowFill(lyric_for_API,line);
+                            pipWindowFill(lyric_for_API,text_translate);
                         }
 
                         //del the color of which lyric after this.
@@ -408,17 +454,9 @@ Selected.prototype = {
         };
         xhttp.send();
     },
-    play: function(songName) {
+    play: function(songName,tool = -1) {
+        console.log("PLAYER.play(" + songName + (tool != -1 ? ',' + tool : '')  + ');');
         var that = this;
-        //To hack iOS,because it will go wrong on iOS
-        var playCount = sessionStorage.getItem("playCount");
-        console.log("playCount=" + playCount);
-        if(playCount==null)playCount = 0;
-        if(++playCount == 10)playCount = 0,sessionStorage.setItem("playCount",0);
-        else{
-            sessionStorage.setItem("playCount",playCount);
-            that.play(songName);
-        }
 
         this.lyricContainer.textContent = 'loading song...';
         this.audio.src = './music/' + songName + '.mp3';
@@ -426,6 +464,11 @@ Selected.prototype = {
 
         this.audio.load();
         this.audio.play();
+
+        if(tool !=-1){
+            this.play(tool);
+            return;
+        }
 
         //scroll to which is playing
         var playlist_ol = document.getElementById("playlist_ol");
