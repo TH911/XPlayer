@@ -281,7 +281,7 @@ a:hover {
 
 /* for mobile */
 #playlist_button{
-    display:block;
+    display:none;
     text-align: center;
     max-height: 30px;
     max-width: 200px;
@@ -434,7 +434,7 @@ a:hover {
 
 /* for mobile */
 #button_search-container{
-    display:block;
+    display:none;
     text-align: center;
     max-height: 30px;
     max-width: 200px;

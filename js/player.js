@@ -221,7 +221,6 @@ function initAudioEvent(index) {
     audio.addEventListener('loadedmetadata', function() {
         // Get how long the song is
         const duration = PLAYER.duration;
-        console.log("the duration is:" + duration);
         var len=document.getElementById("audio-length-total");
         len.textContent = transTime(Math.ceil(duration));
     });
@@ -261,7 +260,6 @@ function initAudioEvent(index) {
         if (!audio.paused || audio.currentTime != 0) {
             var pgsWidth = parseFloat(window.getComputedStyle(progressBarBg, null).width.replace('px', ''));
             var rate = event.offsetX / pgsWidth;
-            sessionStorage.setItem("flag_canplay","false");
             audio.currentTime = PLAYER.duration * rate;
             updateProgress(audio, index);
         }
@@ -336,7 +334,6 @@ function dragProgressDotEvent(audio, index) {
             var progressBarBg = document.getElementById('progressBarBg' + index);
             var pgsWidth = parseFloat(window.getComputedStyle(progressBarBg, null).width.replace('px', ''));
             var rate = (position.oriOffestLeft + length) / pgsWidth;
-            sessionStorage.setItem("flag_canplay","false");
             audio.currentTime = PLAYER.duration * rate;
             updateProgress(audio, index);
         }
@@ -440,7 +437,7 @@ searchResults.addEventListener('click', (event) => {
     if (clickedItem.tagName.toLowerCase() === 'li') {
         document.getElementById("search-box").value = "";
         document.getElementById("search-results").innerHTML = "";
-        rwd();
+        responsiveDesign();
         PLAYER.playNum(PLAYER,parseInt(clickedItem.id.substring(13))-1);
     }
 });
@@ -556,13 +553,15 @@ function mediaSessionAPI(that,name,lyric){
     }else return false;
 }
 
-var pipWindow;
+var pipWindow,pipWindowIsOpened = false;
 async function pipWindowCreate(Width,Height) {
-    console.log(Width + "x" + Height);
+    console.log("pipWindow has created.");
     pipWindow = await window.documentPictureInPicture.requestWindow({
         width: Width,
         height: Height
     });
+    pipWindowIsOpened = true;
+    
     pipWindow.document.addEventListener("keydown",function(e) {
         if(e.key == 'p'){
             pipWindow.close();
@@ -581,8 +580,34 @@ async function pipWindowCreate(Width,Height) {
         }
     });
     pipWindow.addEventListener('beforeunload',function() {
-        keydownForPipWindow=0;
+        keydownForPipWindow = 0;
+        pipWindowIsOpened = false;
     });
+
+    try{
+        // To get the lyric when the audio is paused
+        for (var i = 0, l = PLAYER.lyric.length; i <= l; i++) {
+            //preload the lyric by 0.50s || end
+            if (i == l || PLAYER.audio.currentTime <= PLAYER.lyric[i][0] - 0.50){
+                if(i > 0) i--;
+                //for the lyric to pipWindow
+                var lyric_for_API,text_translate=null;
+                lyric_for_API = PLAYER.lyric[i][1];
+                
+                if(i+1 < l && PLAYER.lyric[i][0] == PLAYER.lyric[i+1][0])text_translate = PLAYER.lyric[i+1][1];
+                if(lyric_for_API.length == 0)lyric_for_API = " ";
+
+                // sync pipWindow
+                if(pipWindowIsOpened){
+                    pipWindowFill(lyric_for_API,text_translate);
+                }
+
+                break;
+            }
+        }
+    }catch(error){
+        console.log("ERROR:" + error);
+    }
 }
 function pipWindowFillTextLength(text){
     //get the length(1 for Chinese,0.5 for English).
@@ -782,28 +807,10 @@ Selected.prototype = {
         };
         currentSong.className = 'current-song';
         
-        var canplayCounter = 0;
-        
+        //first play,second load lyric
         this.audio.addEventListener('canplay', function() {
-            //To hack iOS,because it will go wrong on iOS
-            canplayCounter++;
-            if(canplayCounter == 1){
-                that.play(that.currentIndex+1 == 1?2:1,that.currentIndex+1);
-            }else{
-                canplayCounter = 0;
-            }
-
-            var flag_canplay = sessionStorage.getItem("flag_canplay");
-            // console.log("flag_canplay = " + flag_canplay);
-            if(flag_canplay == null || flag_canplay == "true"){
-                // console.log("audio canplay.");
-                sessionStorage.setItem("flag_canplay","true");
-                that.getLyric(that.audio.src.replace('.mp3', '.lrc'));
-                that.audio.play();
-                // if('documentPictureInPicture' in window){
-                //     pipWindowCreate(300,20);
-                // }
-            }else sessionStorage.setItem("flag_canplay","true");
+            that.audio.play();
+            that.getLyric(that.audio.src.replace('.mp3', '.lrc'));
         });
         //sync the lyric
         this.audio.addEventListener("timeupdate", function(e) {
@@ -813,25 +820,11 @@ Selected.prototype = {
                     //preload the lyric by 0.50s || end
                     if (i == l || this.currentTime <= that.lyric[i][0] - 0.50){
                         if(i > 0) i--;
-                        
-                        //handle which song has 2 languages
-                        if(i>0){
-                            if(that.lyric[i][0] == that.lyric[i-1][0])i--;
-                        }
 
                         var line = document.getElementById('line-' + i);
                         //randomize the color of the current line of the lyric
                         line.className = 'current-line-' + that.lyricStyle;
 
-                        // if(i+1 < l){
-                        //     if(that.lyric[i][0] != that.lyric[i+1][0]){
-                        //         // line.style.animationDuration = that.lyric[i+1][0] - that.lyric[i][0] - 0.2 + 's';
-                        //     }else if(i+2 < l){
-                        //         // line.style.animationDuration = that.lyric[i+2][0] - that.lyric[i][0] - 0.2 + 's';
-                        //     }
-                        //     //If you want this color a line once
-                        //     //line.style.animationDuration = "0s";
-                        // }
                         if(i!=that.last){
                             that.last=i;
                             document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
@@ -847,7 +840,7 @@ Selected.prototype = {
                         mediaSessionAPI(that,sessionStorage.getItem("audio_name"),lyric_for_API);
 
                         // sync pipWindow
-                        if('documentPictureInPicture' in window){
+                        if(pipWindowIsOpened){
                             pipWindowFill(lyric_for_API,text_translate);
                         }
 
@@ -911,7 +904,6 @@ Selected.prototype = {
         this.audio.src = './music/' + songName + '.mp3';
         this.audio.currentTime = 0;
 
-        this.audio.load();
         this.audio.play();
 
         if(tool !=-1){
@@ -943,8 +935,6 @@ Selected.prototype = {
         //empty the lyric
         this.lyric = null;
         this.lyricStyle = Math.floor(Math.random() * 4);
-
-        sessionStorage.setItem("flag_canplay","true");
     },
     getLyric: function(url) {
         var that = this,
@@ -1001,7 +991,6 @@ Selected.prototype = {
             fragment = document.createDocumentFragment();
         //clear the lyric container first
         this.lyricContainer.innerHTML = '';
-        console.log(lyric);
         var that = this;
         lyric.forEach(function(v, i, a) {
             var line_p = document.createElement('p');
@@ -1010,10 +999,8 @@ Selected.prototype = {
             line.textContent = v[1];
             line.style.backgroundClip = "text";
             line.addEventListener("click", function(){
-                sessionStorage.setItem("flag_canplay","false");
                 that.audio.currentTime = v[0];
                 document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
-                // console.log("that.audio.currentTime="+that.audio.currentTime);
             });
             line_p.appendChild(line);
             fragment.appendChild(line_p);
@@ -1021,6 +1008,10 @@ Selected.prototype = {
         lyricContainer.appendChild(fragment);
     },
     ending: function(that) {
+        if(pipWindowIsOpened){
+            pipWindowFill(" ",null);
+        }
+
         //order,reverse,random,loop.
         var player_mode = "order";
         if(localStorage.getItem("player_mode")!=null)player_mode=localStorage.getItem("player_mode");
