@@ -126,73 +126,6 @@ function playlist_hide(){
     }
 }
 
-//spectrum
-var cvs = document.getElementById("spectrum-cvs");
-var ctx = cvs.getContext("2d");
-var audio = document.getElementById("audio");
-let analyser = null;
-let dataArray = new Uint8Array(512);
-
-function initAudio() {
-    let audctx = new AudioContext();
-    let source = audctx.createMediaElementSource(audio);
-    analyser = audctx.createAnalyser();
-    analyser.fftSize = 512;
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
-    draw();
-
-    source.connect(analyser);
-    analyser.connect(audctx.destination);
-}
-
-function draw() {
-    requestAnimationFrame(draw);
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
-    analyser.getByteFrequencyData(dataArray);
-
-    const len = cvs.width / 3;
-    const barWidth = 3;
-
-    const gradient = ctx.createLinearGradient(0, 0, cvs.width, 0);
-    gradient.addColorStop(0, "#00ffff");
-    gradient.addColorStop(1, "#ff1493");
-
-    for (let i = 0; i < len; i++) {
-        const data = dataArray[i];
-        const barHeight = data / 255 * cvs.height;
-        const x = i * barWidth;
-        const y = cvs.height - barHeight;
-
-        drawRoundedRect(x, y, barWidth, barHeight, 3);
-
-        ctx.fillStyle = gradient;
-        ctx.fill(); 
-    }
-}
-
-function drawRoundedRect(x, y, width, height, radius) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.arcTo(x + width, y, x + width, y + height, radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
-    ctx.lineTo(x + radius, y + height);
-    ctx.arcTo(x, y + height, x, y + height - radius, radius);
-    ctx.lineTo(x, y + radius);
-    ctx.arcTo(x, y, x + radius, y, radius);
-    ctx.closePath();
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#000';
-    ctx.stroke();
-}
-
-initAudio();
-
-document.getElementById("audio").addEventListener('pause', function(){
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
-});
-
 document.addEventListener('DOMContentLoaded', function () {
     // 设置音频文件名显示宽度
     var element = document.querySelector('.audio-right');
@@ -590,6 +523,9 @@ async function pipWindowCreate(Width,Height) {
             //preload the lyric by 0.50s || end
             if (i == l || PLAYER.audio.currentTime <= PLAYER.lyric[i][0] - 0.50){
                 if(i > 0) i--;
+
+                if(i > 1 && PLAYER.lyric[i][0] == PLAYER.lyric[i-1][0]) i = i-1;
+
                 //for the lyric to pipWindow
                 var lyric_for_API,text_translate=null;
                 lyric_for_API = PLAYER.lyric[i][1];
@@ -821,6 +757,12 @@ Selected.prototype = {
                     if (i == l || this.currentTime <= that.lyric[i][0] - 0.50){
                         if(i > 0) i--;
 
+                        // console.log("find at " + i);
+
+                        if(i > 1 && that.lyric[i][0] == that.lyric[i-1][0]){
+                            i = i-1;
+                        }
+
                         var line = document.getElementById('line-' + i);
                         //randomize the color of the current line of the lyric
                         line.className = 'current-line-' + that.lyricStyle;
@@ -845,14 +787,16 @@ Selected.prototype = {
                         }
 
                         //del the color of which lyric after this.
-                        for(var j = i+1 ; j<l ; j++){
+                        for(var j = i + 1 ; j<l ; j++){
                             var line = document.getElementById('line-' + j);
                             line.className='';
-                        }break;
+                        }
+                        
+                        break;
                     }else{
                         try{
                             var line = document.getElementById('line-' + i);
-                        line.className = '';
+                            line.className = '';
                         }catch{
                             console.log("error on #" + i);
                         }
@@ -1129,3 +1073,70 @@ Selected.prototype = {
         }return offset;
     }
 };
+
+//spectrum
+var cvs = document.getElementById("spectrum-cvs");
+var ctx = cvs.getContext("2d");
+var audio = document.getElementById("audio");
+let analyser = null;
+let dataArray = new Uint8Array(512);
+
+function initAudio() {
+    let audctx = new AudioContext();
+    let source = audctx.createMediaElementSource(audio);
+    analyser = audctx.createAnalyser();
+    analyser.fftSize = 512;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    draw();
+
+    source.connect(analyser);
+    analyser.connect(audctx.destination);
+}
+
+function draw() {
+    requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    analyser.getByteFrequencyData(dataArray);
+
+    const len = cvs.width / 3;
+    const barWidth = 3;
+
+    const gradient = ctx.createLinearGradient(0, 0, cvs.width, 0);
+    gradient.addColorStop(0, "#00ffff");
+    gradient.addColorStop(1, "#ff1493");
+
+    for (let i = 0; i < len; i++) {
+        const data = dataArray[i];
+        const barHeight = data / 255 * cvs.height;
+        const x = i * barWidth;
+        const y = cvs.height - barHeight;
+
+        drawRoundedRect(x, y, barWidth, barHeight, 3);
+
+        ctx.fillStyle = gradient;
+        ctx.fill(); 
+    }
+}
+
+function drawRoundedRect(x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.arcTo(x + width, y, x + width, y + height, radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+    ctx.lineTo(x + radius, y + height);
+    ctx.arcTo(x, y + height, x, y + height - radius, radius);
+    ctx.lineTo(x, y + radius);
+    ctx.arcTo(x, y, x + radius, y, radius);
+    ctx.closePath();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#000';
+    ctx.stroke();
+}
+
+initAudio();
+
+document.getElementById("audio").addEventListener('pause', function(){
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+});
