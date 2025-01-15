@@ -946,10 +946,12 @@ Selected.prototype = {
             line.id = 'line-' + i;
             line.textContent = v[1];
             line.style.backgroundClip = "text";
-            line.addEventListener("click", function(){
-                that.audio.currentTime = v[0];
-                document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
-            });
+            if(lyric.length > 1){
+                line.addEventListener("click", function(){
+                    that.audio.currentTime = v[0];
+                    document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
+                });
+            }
             line_p.appendChild(line);
             fragment.appendChild(line_p);
         });
