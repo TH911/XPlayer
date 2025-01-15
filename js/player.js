@@ -743,11 +743,6 @@ Selected.prototype = {
         };
         currentSong.className = 'current-song';
         
-        //first play,second load lyric
-        this.audio.addEventListener('canplay', function() {
-            that.audio.play();
-            that.getLyric(that.audio.src.replace('.mp3', '.lrc'));
-        });
         //sync the lyric
         this.audio.addEventListener("timeupdate", function(e) {
             try{
@@ -847,6 +842,15 @@ Selected.prototype = {
         this.lyricContainer.textContent = 'loading song...';
         this.audio.src = './music/' + songName + '.mp3';
         this.audio.currentTime = 0;
+
+        //first play,second load lyric
+        //set this.audio.curremtTime will make canplay,so add this once when play.
+        this.audio.addEventListener('canplay', function() {
+            that.audio.play();
+            that.getLyric(that.audio.src.replace('.mp3', '.lrc'));
+        },{
+            once: true
+        });
 
         this.audio.play();
 
@@ -952,6 +956,9 @@ Selected.prototype = {
         lyricContainer.appendChild(fragment);
     },
     ending: function(that) {
+
+        this.audio.currentTime = 0;
+
         if(pipWindowIsOpened){
             pipWindowFill(" ",null);
         }
