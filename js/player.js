@@ -328,7 +328,6 @@ function formatTime(value) {
 
 const searchBox = document.getElementById('search-box');
 const searchResults = document.getElementById('search-results');
-
 async function loadData() {
     try {
         const response = await fetch('json/content.json');
@@ -336,16 +335,26 @@ async function loadData() {
         return data.data;
     } catch (error) {
         console.error('failed to loading the search box of songs:', error);
+        return null;
     }
 }
-
+var searchData = null;
+function getSearchData(){
+    if(searchData == null){
+        searchData = loadData();
+    }
+    return searchData;
+}
 async function searchSongs(query) {
     if (!query) {
         searchResults.innerHTML = '';
         return;
     }
 
-    const songs = await loadData();
+    if(searchData == null){
+        searchData = await getSearchData();
+    }
+    const songs = searchData;
     const queryLowerCase = query.toLowerCase();
     const filteredSongs = songs.filter(song => 
         song.song_name.toLowerCase().includes(queryLowerCase) || song.artist.toLowerCase().includes(queryLowerCase) || song.lrc_name.toLowerCase().includes(queryLowerCase)
@@ -371,7 +380,7 @@ searchResults.addEventListener('click', (event) => {
         document.getElementById("search-box").value = "";
         document.getElementById("search-results").innerHTML = "";
         responsiveDesign();
-        PLAYER.playNum(PLAYER,parseInt(clickedItem.id.substring(13))-1);
+        PLAYER.playNum(parseInt(clickedItem.id.substring(13))-1);
     }
 });
 
@@ -450,45 +459,8 @@ function hide_playmode(){
     else playmode_menu.style.display = "none";
 }
 
-// https://stackoverflow.com/questions/44418606/how-do-i-set-a-thumbnail-when-playing-audio-in-ios-safari
-function mediaSessionAPI(that,name,lyric){
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: name,
-            artist: lyric,
-            artwork: [
-            { src: document.getElementById('cover_img').src }
-            ]
-        });
-        navigator.mediaSession.setActionHandler("seekbackward", function () {
-            var audio = document.getElementById("audio");
-            audio.currentTime-=Math.min(10,audio.currentTime);
-        });
-        navigator.mediaSession.setActionHandler("seekforward", function () {
-            var audio = document.getElementById("audio");
-            audio.currentTime+=Math.min(10,PLAYER.duration-audio.currentTime);
-        });
-        navigator.mediaSession.setActionHandler("previoustrack", function () {
-            that.playPrev(that);
-        });
-        navigator.mediaSession.setActionHandler("nexttrack", function () {
-            that.playNext(that);
-        });
-        navigator.mediaSession.setActionHandler("play", function () {
-            var audio = document.getElementById("audio");
-            audio.play();
-        });
-        navigator.mediaSession.setActionHandler("pause", function () {
-            var audio = document.getElementById("audio");
-            audio.pause();
-        });
-        return true;
-    }else return false;
-}
-
 var pipWindow,pipWindowIsOpened = false;
 async function pipWindowCreate(Width,Height) {
-    console.log("pipWindow has created.");
     pipWindow = await window.documentPictureInPicture.requestWindow({
         width: Width,
         height: Height
@@ -504,8 +476,8 @@ async function pipWindowCreate(Width,Height) {
             if(PLAYER.audio.paused)PLAYER.audio.play();
             else PLAYER.audio.pause();
         }
-        if(e.code == 'ArrowUp')PLAYER.playPrev(PLAYER);
-        else if(e.code == 'ArrowDown')PLAYER.playNext(PLAYER);
+        if(e.code == 'ArrowUp')PLAYER.playPrev();
+        else if(e.code == 'ArrowDown')PLAYER.playNext();
         else if(e.code == 'ArrowLeft'){
             PLAYER.audio.currentTime-=Math.min(PLAYER.audio.currentTime,10);
         }else if(e.code == 'ArrowRight'){
@@ -517,32 +489,39 @@ async function pipWindowCreate(Width,Height) {
         pipWindowIsOpened = false;
     });
 
-    try{
-        // To get the lyric when the audio is paused
-        for (var i = 0, l = PLAYER.lyric.length; i <= l; i++) {
-            //preload the lyric by 0.50s || end
-            if (i == l || PLAYER.audio.currentTime <= PLAYER.lyric[i][0] - 0.50){
-                if(i > 0) i--;
+    console.log("pipWindow has created.");
 
-                if(i > 1 && PLAYER.lyric[i][0] == PLAYER.lyric[i-1][0]) i = i-1;
-
-                //for the lyric to pipWindow
-                var lyric_for_API,text_translate=null;
-                lyric_for_API = PLAYER.lyric[i][1];
-                
-                if(i+1 < l && PLAYER.lyric[i][0] == PLAYER.lyric[i+1][0])text_translate = PLAYER.lyric[i+1][1];
-                if(lyric_for_API.length == 0)lyric_for_API = " ";
-
-                // sync pipWindow
-                if(pipWindowIsOpened){
-                    pipWindowFill(lyric_for_API,text_translate);
+    if(PLAYER.lyricMode == "lrc"){
+        try{
+            // To get the lyric when the audio is paused
+            for (var i = 0, l = PLAYER.lyric.length; i <= l; i++) {
+                //preload the lyric by 0.50s || end
+                if (i == l || PLAYER.audio.currentTime <= PLAYER.lyric[i][0] - 0.50){
+                    if(i > 0) i--;
+    
+                    if(i > 1 && PLAYER.lyric[i][0] == PLAYER.lyric[i-1][0]) i = i-1;
+    
+                    //for the lyric to pipWindow
+                    var lyric_for_API,text_translate=null;
+                    lyric_for_API = PLAYER.lyric[i][1];
+                    
+                    if(i+1 < l && PLAYER.lyric[i][0] == PLAYER.lyric[i+1][0])text_translate = PLAYER.lyric[i+1][1];
+                    if(lyric_for_API.length == 0)lyric_for_API = " ";
+    
+                    // sync pipWindow
+                    if(pipWindowIsOpened){
+                        pipWindowFill(lyric_for_API,text_translate);
+                    }
+    
+                    break;
                 }
-
-                break;
             }
+        }catch(error){
+            console.error("ERROR:" + error);
         }
-    }catch(error){
-        console.log("ERROR:" + error);
+    } else {
+        pipWindow.document.head.innerHTML = '<link rel="stylesheet" href="css/player.css">';
+        pipWindowFillXrc(document.getElementById('line-' + PLAYER.lastXrcLetterI));
     }
 }
 function pipWindowFillTextLength(text){
@@ -602,13 +581,19 @@ async function pipWindowFill(text,text_translate) {
 
     pipWindow.document.body.appendChild(tool);
 }
+async function pipWindowFillXrc(node) {
+    pipWindow.document.body.classList.add('current-line-xrc-' + PLAYER.lyricStyle);
+    console.log(document.getElementById('line-' + PLAYER.lastXrcLetterI));
+    pipWindow.document.body.innerHTML = '';
+    pipWindow.document.body.appendChild(node.cloneNode(2));
+    // pipWindow.document.body.style.backgroundColor = "#000";
+}
 
 var keydownForPipWindow=0;
 document.addEventListener('keydown', function(e){
     if(e.key!='p')return;
     if('documentPictureInPicture' in window){
         ++keydownForPipWindow;
-        // alert("keydownForPipWindow=" + keydownForPipWindow);
         if(keydownForPipWindow==2){
             keydownForPipWindow=0;
             pipWindow.close();
@@ -616,7 +601,7 @@ document.addEventListener('keydown', function(e){
             pipWindowCreate(300,20);
         }
     }else{
-        console.log("pipWindow isn't supported.");
+        console.error("pipWindow isn't supported.");
     }
 });
 
@@ -646,7 +631,11 @@ var Selected = function() {
     this.currentIndex = 0;
     this.lyric = null;
     this.lyricStyle = 0; //random num to specify the different class name for lyric
+    this.lyricMode = "lrc";
+    this.clickedToSetCurrentTime = false;
     this.last = -1;
+    this.lastXrcLetterI = null;
+    this.lastXrcLetterJ = null;
     this.audio_name = [];
     this.audio_artist = [];
     this.audio_album = [];
@@ -707,10 +696,10 @@ Selected.prototype = {
             that.play(songName);
         }, false);
         this.audio.onended = function() {
-            that.ending(that);
+            that.ending();
         }
         this.audio.onerror = function(e) {
-            console.log("audio load error:" + e);
+            console.error("audio load error:" + e);
             var audioErrorCount = sessionStorage.getItem("audioErrorCount");
             if(audioErrorCount == null)audioErrorCount=0;
             if(++audioErrorCount<=2)that.play(that.currentIndex+1);
@@ -719,8 +708,8 @@ Selected.prototype = {
 
         //enable keyboard control , spacebar to change the song
         window.addEventListener('keydown', function(e) {
-            if(e.code == 'ArrowUp')that.playPrev(that);
-            else if(e.code == 'ArrowDown')that.playNext(that);
+            if(e.code == 'ArrowUp')that.playPrev();
+            else if(e.code == 'ArrowDown')that.playNext();
             else if(e.code == 'ArrowLeft'){
                 var Song = this.document.getElementById("audio");
                 Song.currentTime-=Math.min(Song.currentTime,10);
@@ -742,64 +731,54 @@ Selected.prototype = {
             allSongs[i].className = '';
         };
         currentSong.className = 'current-song';
-        
+
         //sync the lyric
         this.audio.addEventListener("timeupdate", function(e) {
+            that.syncLyric();
+        });
+
+        // pause the animation of lyric if audio has paused and it's xrc.
+        this.audio.addEventListener("pause", function(){
             try{
-                if(!that.lyric)return;
-                for (var i = 0, l = that.lyric.length; i <= l; i++) {
-                    //preload the lyric by 0.50s || end
-                    if (i == l || this.currentTime <= that.lyric[i][0] - 0.50){
-                        if(i > 0) i--;
-
-                        // console.log("find at " + i);
-
-                        if(i > 1 && that.lyric[i][0] == that.lyric[i-1][0]){
-                            i = i-1;
-                        }
-
-                        var line = document.getElementById('line-' + i);
-                        //randomize the color of the current line of the lyric
-                        line.className = 'current-line-' + that.lyricStyle;
-
-                        if(i!=that.last){
-                            that.last=i;
-                            document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
-                        }
-
-                        //for the lyric to MediaSession
-                        var lyric_for_API,text_translate=null;
-                        lyric_for_API = that.lyric[i][1];
-                        if(i+1 < l && that.lyric[i][0] == that.lyric[i+1][0])text_translate = that.lyric[i+1][1];
-                        if(lyric_for_API.length == 0)lyric_for_API = " ";
-
-                        //sync MediaSession API
-                        mediaSessionAPI(that,sessionStorage.getItem("audio_name"),lyric_for_API);
-
-                        // sync pipWindow
-                        if(pipWindowIsOpened){
-                            pipWindowFill(lyric_for_API,text_translate);
-                        }
-
-                        //del the color of which lyric after this.
-                        for(var j = i + 1 ; j<l ; j++){
-                            var line = document.getElementById('line-' + j);
-                            line.className='';
-                        }
-                        
-                        break;
-                    }else{
-                        try{
-                            var line = document.getElementById('line-' + i);
-                            line.className = '';
-                        }catch{
-                            console.log("error on #" + i);
-                        }
-                    }
+                if(that.lastXrcLetterI != null) {
+                    var letter = document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                    letter.style.animationPlayState = "paused";
                 }
             }catch(error){
-                console.log("ERROR:" + error);
+                console.error("ERROR:" + error);
             }
+        });
+        // play the animation
+        this.audio.addEventListener("play", function(){
+            try{
+                if(that.lastXrcLetterI) {
+                    var letter = document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                    letter.style.animationPlayState = "running";
+                }
+            }catch(error){
+                console.error("ERROR:" + error);
+            }
+            // try{
+            //     if(!that.lyric)return;
+            //     // because preload by 0.25s,this need preload by 0.25s,too.
+            //     var currentTime = that.audio.currentTime + 0.25;
+            //     for (var i = 0 ; i < that.lyric.length; i++) {
+            //         var lyricInline = that.lyric[i];
+            //         //find the line
+            //         if(currentTime < lyricInline[lyricInline.length - 1][2]){                        
+            //             for(var j = 0 ; j < lyricInline.length ; j++){
+            //                 if(currentTime <= lyricInline[j][2]) {
+            //                     var letter = document.getElementById('line-' + i + '-' + j);
+            //                     letter.style.animationPlayState = "running";
+            //                     break;
+            //                 }
+            //             }
+            //             break;
+            //         }
+            //     }
+            // }catch(error){
+            //     console.error("ERROR:" + error);
+            // }
         });
 
         this.play(randomSong);
@@ -835,7 +814,43 @@ Selected.prototype = {
         };
         xhttp.send();
     },
+    mediaSessionAPI(name,lyric){
+        var that = this;
+        // https://stackoverflow.com/questions/44418606/how-do-i-set-a-thumbnail-when-playing-audio-in-ios-safari
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: name,
+                artist: lyric,
+                artwork: [
+                { src: document.getElementById('cover_img').src }
+                ]
+            });
+            navigator.mediaSession.setActionHandler("seekbackward", function () {
+                that.audio.currentTime-=Math.min(10,audio.currentTime);
+            });
+            navigator.mediaSession.setActionHandler("seekforward", function () {
+                that.audio.currentTime+=Math.min(10,PLAYER.duration-audio.currentTime);
+            });
+            navigator.mediaSession.setActionHandler("previoustrack", function () {
+                that.playPrev();
+            });
+            navigator.mediaSession.setActionHandler("nexttrack", function () {
+                that.playNext();
+            });
+            navigator.mediaSession.setActionHandler("play", function () {
+                that.audio.play();
+            });
+            navigator.mediaSession.setActionHandler("pause", function () {
+                that.audio.pause();
+            });
+            return true;
+        }else return false;
+    },
     play: function(songName,tool = -1) {
+
+        // clean the flag of animation.
+        this.lastXrcLetterI = this.lastXrcLetterJ = null;
+
         console.log("PLAYER.play(" + songName + (tool != -1 ? ',' + tool : '')  + ');');
         var that = this;
 
@@ -847,7 +862,7 @@ Selected.prototype = {
         //set this.audio.curremtTime will make canplay,so add this once when play.
         this.audio.addEventListener('canplay', function() {
             that.audio.play();
-            that.getLyric(that.audio.src.replace('.mp3', '.lrc'));
+            that.getLyric(that.audio.src.replace('.mp3', ''));
         },{
             once: true
         });
@@ -876,33 +891,40 @@ Selected.prototype = {
         this.duration = this.audio_duration[songName];
 
         sessionStorage.setItem("audio_name",this.audio_name[songName]);
-        mediaSessionAPI(this,sessionStorage.getItem("audio_name"),' ');
+        this.mediaSessionAPI(sessionStorage.getItem("audio_name"),' ');
 
         var screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
         this.lyricContainer.style.top = Math.floor((screenHeight-100)*0.4);
         //empty the lyric
         this.lyric = null;
+        // this.lyricStyle = 1;
         this.lyricStyle = Math.floor(Math.random() * 4);
+        //1145141919810
     },
-    getLyric: function(url) {
-        var that = this,
-            request = new XMLHttpRequest();
-        request.open('GET', url, true);
-        request.responseType = 'text';
-        //fix for the messy code problem for Chinese.  reference: http://xx.time8.org/php/20101218/ajax-xmlhttprequest.html
-        //request['overrideMimeType'] && request.overrideMimeType("text/html;charset=gb2312");
-        request.onload = function() {
-            that.lyric = that.parseLyric(request.response);
-            //display lyric to the page
-            that.appendLyric(that.lyric);
-        };
-        request.onerror = request.onabort = function(e) {
-            that.lyricContainer.textContent = '歌词加载失败,请检查网络或清空缓存并重试';
+    getLyricFetch: async function(url) {
+        var answer;
+        const response = await fetch(url);
+        if(response.ok == false){
+            return null;
+        } else {
+            answer = await response.text();
+            return answer;
         }
-        this.lyricContainer.textContent = 'loading lyric...';
-        request.send();
     },
-    parseLyric: function(text) {
+    getLyric: async function(url) {
+        this.lyricContainer.textContent = 'loading lyric...';
+        // try to get xrc
+        var lyric = await this.getLyricFetch(url + '.xrc');
+        if(lyric != null){
+            this.lyricMode = "xrc";
+        }else{
+            this.lyricMode = "lrc";
+            lyric = await this.getLyricFetch(url + '.lrc');
+        }
+        this.lyric = this.parseLyric(lyric);
+        this.appendLyric(this.lyric);
+    },
+    parseLyricLrc: function(text) {
         //get each line from the text
         var lines = text.split('\n'),
             //this regex mathes the time [00.12.78]
@@ -934,7 +956,50 @@ Selected.prototype = {
         });
         return result;
     },
-    appendLyric: function(lyric) {
+    parseLyricXrc: function(text) {
+        text = text.match(/<Lyric_1 LyricType="1" LyricContent="([^"]+)"/);
+        if (!text) {
+            return null;
+        }
+        
+        const lyricContent = text[1];
+        
+        const lines = lyricContent.split('\n').filter(line => line.trim() !== '');
+    
+        const lyric = [];
+        
+        lines.forEach(line => {
+            const lineMatch = line.match(/\[\s*-?\d+\s*,\s*-?\d+\s*\]/);
+            if (lineMatch) {
+                const lyricsText = lineMatch.input.substring(lineMatch[0].length);
+                const inline = [];
+
+                const str = [...lyricsText.matchAll(/\(\s*-?\d+\s*,\s*-?\d+\s*\)/g)];
+
+                for(var i = 0;i < str.length ;i++){
+                    const word = lyricsText.substring((i > 0 ? str[i-1].index + str[i-1][0].length : 0),str[i].index);
+                    const time = str[i][0].match(/-?\d+/g);
+                    // ms -> s
+                    const start = parseInt(time[0]) / 1000;
+                    const end = (parseInt(time[0]) + parseInt(time[1]) - 1) / 1000;
+            
+                    inline.push([word, start, end]);
+                }
+            
+                lyric.push(inline);
+            }
+        });
+        // console.log(lyric);
+        return lyric;
+    },
+    parseLyric: function(text) {
+        if(this.lyricMode == "lrc"){
+            return this.parseLyricLrc(text);
+        }else{
+            return this.parseLyricXrc(text);
+        }
+    },
+    appendLyricLrc: function(lyric) {
         var lyricContainer = this.lyricContainer,
             fragment = document.createDocumentFragment();
         //clear the lyric container first
@@ -957,7 +1022,217 @@ Selected.prototype = {
         });
         lyricContainer.appendChild(fragment);
     },
-    ending: function(that) {
+    appendLyricXrc: function(lyric) {
+        var that = this;
+        var lyricContainer = this.lyricContainer,
+            fragment = document.createDocumentFragment();
+        //clear the lyric container first
+        this.lyricContainer.innerHTML = '';
+        for(var i = 0;i < lyric.length;i++){
+            var line_p = document.createElement('p');
+            var line = document.createElement('span');
+            line.id = 'line-' + i;
+            line.setAttribute('start-time',lyric[i][0][1]);
+            //lyric for mediaSession API.
+            line.setAttribute('word','');
+            // line.setAttribute('end-time',lyric[i][lyric[i].length-1][2]);
+            for(var j = 0;j < lyric[i].length;j++){
+                var letter = document.createElement('span');
+                letter.style.backgroundClip = "text";
+                letter.id = line.id + '-' + j;
+                letter.textContent = lyric[i][j][0];
+                // letter.setAttribute('start-time',lyric[i][j][1]);
+                // letter.setAttribute('end-time',lyric[i][j][2]);
+                line.setAttribute('word',line.getAttribute('word') + letter.textContent);
+                line.appendChild(letter);
+            }
+            line.addEventListener("click", function(){
+                //clean the animation first.
+                try{
+                    if(that.lyric){
+                        for (var i = 0 ; i < that.lyric.length; i++) {
+                            var lyricInline = that.lyric[i];
+                            document.getElementById('line-' + i).className = '';
+                            //find the line                            
+                            for(var j = 0 ; j < lyricInline.length ; j++){
+                                var letter = document.getElementById('line-' + i + '-' + j);
+                                letter.style.animationName = '';
+                                letter.style.animationDuration = '';
+                                letter.style.animationTimingFunction = ''; 
+                                letter.className = '';
+                            }
+                        }
+                    }
+                }catch(error){
+                    console.error("ERROR:" + error);
+                }
+
+                that.audio.currentTime = this.getAttribute("start-time");
+                that.audio.play();
+                document.getElementById("lyricWrapper").scrollTop = this.offsetTop;
+            });
+            line_p.appendChild(line);
+            fragment.appendChild(line_p);
+        }
+        lyricContainer.appendChild(fragment);
+    },
+    appendLyric: function(lyric) {
+        if(this.lyricMode == "lrc"){
+            this.appendLyricLrc(lyric);
+        }else{
+            this.appendLyricXrc(lyric);
+        }
+    },
+    syncLyricLrc: function(){
+        this.lyricContainer.className = '';
+        try{
+            if(!this.lyric)return;
+            for (var i = 0, l = this.lyric.length; i <= l; i++) {
+                //preload the lyric by 0.50s || end
+                if (i == l || this.audio.currentTime <= this.lyric[i][0] - 0.50){
+                    if(i > 0) i--;
+
+                    // console.log("find at " + i);
+
+                    if(i > 1 && this.lyric[i][0] == this.lyric[i-1][0]){
+                        i--;
+                    }
+
+                    var line = document.getElementById('line-' + i);
+                    //randomize the color of the current line of the lyric
+                    line.className = 'current-line-' + this.lyricStyle;
+
+                    if(i != this.last){
+                        this.last=i;
+                        document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
+                    }
+
+                    //for the lyric to MediaSession
+                    var lyric_for_API,text_translate=null;
+                    lyric_for_API = this.lyric[i][1];
+                    if(i+1 < l && this.lyric[i][0] == this.lyric[i+1][0])text_translate = this.lyric[i+1][1];
+                    if(lyric_for_API.length == 0)lyric_for_API = " ";
+
+                    //sync MediaSession API
+                    this.mediaSessionAPI(sessionStorage.getItem("audio_name"),lyric_for_API);
+
+                    // sync pipWindow
+                    if(pipWindowIsOpened){
+                        pipWindowFill(lyric_for_API,text_translate);
+                    }
+
+                    //del the color of which lyric after this.
+                    for(var j = i + 1 ; j<l ; j++){
+                        var line = document.getElementById('line-' + j);
+                        line.className='';
+                    }
+                    
+                    break;
+                }else{
+                    try{
+                        var line = document.getElementById('line-' + i);
+                        line.className = '';
+                    }catch{
+                        console.error("error on #" + i);
+                    }
+                }
+            }
+        }catch(error){
+            console.error("ERROR:" + error);
+        }
+    },
+    syncLyricXrc: function(){
+        this.lyricContainer.classList.add('current-line-xrc-' + this.lyricStyle);
+        try{
+            if(!this.lyric)return;
+            // preload by 0.25s.
+            var currentTime = this.audio.currentTime + 0.25;
+            for (var i = 0 ; i < this.lyric.length; i++) {
+                var lyricInline = this.lyric[i];
+                //find the line
+                if(currentTime < lyricInline[lyricInline.length - 1][2]){
+
+                    var line = document.getElementById('line-' + i);
+
+                    line.classList.add('current-line');
+
+                    this.mediaSessionAPI(sessionStorage.getItem("audio_name"),line.getAttribute("word"));
+
+                    // scroll
+                    if(i != this.last){
+                        document.getElementById("lyricWrapper").scrollTop = document.getElementById('line-' + i).offsetTop;
+                        this.last = i;
+                    }
+                    
+                    for(var j = 0 ; j < lyricInline.length ; j++){
+
+                        var letter = document.getElementById('line-' + i + '-' + j);
+
+                        if(currentTime > lyricInline[j][2]) {
+                            letter.classList.add('current-line-xrc-played-' + this.lyricStyle);
+                            letter.classList.remove('current-line-xrc-playing-' + this.lyricStyle);
+                        } else {
+                            
+                            
+
+                            letter.classList.add('current-line-xrc-playing-' + this.lyricStyle);
+
+                            if(this.lastXrcLetterI != i || this.lastXrcLetterJ != j){
+                                letter.style.animationName = "lyric_sync_letter";
+                                letter.style.animationTimingFunction = "linear";
+                                letter.style.animationDuration = (lyricInline[j][2] - lyricInline[j][1]) + 's';
+                                this.lastXrcLetterI = i;
+                                this.lastXrcLetterJ = j;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    for(i++ ; i < this.lyric.length ; i++) {
+                        try {
+                            var line = document.getElementById('line-' + i);
+                            line.className = '';
+                            document.getElementById("line-" + i).classList.add('current-line-xrc');
+                            line.style = '';
+                            Array.from(line.getElementsByTagName('span')).forEach(span => {
+                                span.className = '';
+                                span.style = 'background-clip: text';
+                            });
+                        } catch {
+                            console.error("error on #" + j);
+                        }
+                    }
+                    break;
+                } else {
+                    try {
+                        var line = document.getElementById('line-' + i);
+                        line.className = '';
+                        line.style = '';
+                        document.getElementById("line-" + i).classList.add('current-line-xrc');
+                        Array.from(line.getElementsByTagName('span')).forEach(span => {
+                            span.className = '';
+                            span.style = 'background-clip: text';
+                        });
+                    } catch {
+                        console.error("error on #" + i);
+                    }
+                }
+            }
+            pipWindowFillXrc(document.getElementById('line-' + this.lastXrcLetterI));
+        }catch(error){
+            console.error("ERROR:" + error);
+        }
+    },
+    syncLyric: function(){
+        if(this.lyricMode == "lrc"){
+            this.syncLyricLrc();
+        }else{
+            if(this.clickedToSetCurrentTime) return;
+            this.syncLyricXrc();
+        }
+    },
+    ending: function() {
 
         this.audio.currentTime = 0;
 
@@ -971,21 +1246,21 @@ Selected.prototype = {
         else localStorage.setItem("player_mode",player_mode);
         switch(player_mode){
             case "order":
-                that.playNext(that);
+                this.playNext();
                 break;
             case "reverse":
-                that.playPrev(that);
+                this.playPrev();
                 break;
             case "random":
-                that.playRandom(that);
+                this.playRandom();
                 break;
             case "loop":
-                that.playAgain(that);
+                this.playAgain();
                 break;
         }
     },
-    all_played: function(that){
-        var allSongs = that.playlist.children[0].children;
+    all_played: function(){
+        var allSongs = this.playlist.children[0].children;
         for(var i = 0 ; i<allSongs.length ; i++ ){
             if(allSongs[i].className != 'current-song-played' && allSongs[i].className != 'current-song'){
                 return false;
@@ -993,71 +1268,71 @@ Selected.prototype = {
         }
         return true;
     },
-    playNum: function(that,index){
+    playNum: function(index){
         var allSongs = this.playlist.children[0].children;
-        var tmp = that.currentIndex;
-        that.currentIndex = index;
-        that.setClass(tmp,that.currentIndex);
-        var Item = allSongs[that.currentIndex].children[0];
+        var tmp = this.currentIndex;
+        this.currentIndex = index;
+        this.setClass(tmp,this.currentIndex);
+        var Item = allSongs[this.currentIndex].children[0];
         var songName = Item.getAttribute('data-name');
         window.location.hash = songName;
-        that.play(songName);
+        this.play(songName);
     },
-    playRandom: function(that){
+    playRandom: function(){
         var allSongs = this.playlist.children[0].children,
             randomItem;
-        var tmp = that.currentIndex;
-        var flag = that.all_played(that);
+        var tmp = this.currentIndex;
+        var flag = this.all_played();
         if(flag){
             for(var i = 0 ; i < allSongs.length ; i++)allSongs[i].className = '';
         }
         do{
-            that.currentIndex = Math.floor(Math.random() * this.playlist.children[0].children.length);
-        } while(allSongs[that.currentIndex].className == 'current-song-played' || allSongs[that.currentIndex].className == 'current-song');
-        randomItem = allSongs[that.currentIndex].children[0];
-        that.setClass((flag ? -1 : tmp),that.currentIndex);
+            this.currentIndex = Math.floor(Math.random() * this.playlist.children[0].children.length);
+        } while(allSongs[this.currentIndex].className == 'current-song-played' || allSongs[this.currentIndex].className == 'current-song');
+        randomItem = allSongs[this.currentIndex].children[0];
+        this.setClass((flag ? -1 : tmp),this.currentIndex);
         var songName = randomItem.getAttribute('data-name');
         window.location.hash = songName;
-        that.play(songName);
+        this.play(songName);
     },
-    playAgain: function(that) {
-        that.play(window.location.hash.substring(1));
+    playAgain: function() {
+        this.play(window.location.hash.substring(1));
     },
-    playNext: function(that) {
+    playNext: function() {
         var allSongs = this.playlist.children[0].children,
             nextItem;
-        var tmp = that.currentIndex;
+        var tmp = this.currentIndex;
         //reaches the last song of the playlist?
-        if (that.currentIndex === allSongs.length - 1) {
+        if (this.currentIndex === allSongs.length - 1) {
             //play from start
-            that.currentIndex = 0;
+            this.currentIndex = 0;
         } else {
             //play next index
-            that.currentIndex += 1;
+            this.currentIndex ++;
         };
-        nextItem = allSongs[that.currentIndex].children[0];
-        that.setClass(tmp,that.currentIndex);
+        nextItem = allSongs[this.currentIndex].children[0];
+        this.setClass(tmp,this.currentIndex);
         var songName = nextItem.getAttribute('data-name');
         window.location.hash = songName;
-        that.play(songName);
+        this.play(songName);
     },
-    playPrev: function(that) {
+    playPrev: function() {
         var allSongs = this.playlist.children[0].children,
             prevItem;
-        var tmp = that.currentIndex;
+        var tmp = this.currentIndex;
             //reaches the first song of the playlist?
-        if (that.currentIndex === 0) {
+        if (this.currentIndex === 0) {
             //play from end
-            that.currentIndex = allSongs.length - 1;
+            this.currentIndex = allSongs.length - 1;
         } else {
             //play prev index
-            that.currentIndex -= 1;
+            this.currentIndex -= 1;
         };
-        prevItem = allSongs[that.currentIndex].children[0];
-        that.setClass(tmp,that.currentIndex);
+        prevItem = allSongs[this.currentIndex].children[0];
+        this.setClass(tmp,this.currentIndex);
         var songName = prevItem.getAttribute('data-name');
         window.location.hash = songName;
-        that.play(songName);
+        this.play(songName);
     },
     setClass: function(old_index,new_index) {
         var allSongs = this.playlist.children[0].children;
