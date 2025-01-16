@@ -361,9 +361,7 @@ async function searchSongs(query) {
     );
 
     searchResults.innerHTML = filteredSongs.map(song => 
-        `<li id='search-songs-${song.lrc_name}'>
-            <strong>${song.song_name}</strong> - ${song.artist}
-        </li>`
+        `<li id='search-songs-${song.lrc_name}'><img src="./music/${song.lrc_name}.webp"><span><strong>${song.song_name}</strong> - ${song.artist}</span></li>`
     ).join('');
 }
 
@@ -624,6 +622,38 @@ window.onload = function() {
     PLAYER = new Selected();
     PLAYER.init();
 };
+var mouseState = 'up',mouseStateTime = 0,mouseTouchStart = false;
+document.addEventListener('touchstart', function(){
+    mouseStateTime = new Date().getTime();
+    mouseState = 'down';
+    mouseTouchStart = true;
+});
+document.addEventListener('mousedown', function(){
+    mouseStateTime = new Date().getTime();
+    mouseState = 'down';
+});
+document.addEventListener('mouseup', function(){
+    mouseStateTime = new Date().getTime();
+    mouseState = 'up';
+});
+document.addEventListener('touchend', function(){
+    mouseStateTime = new Date().getTime();
+    mouseState = 'up';
+    mouseTouchStart = false;
+});
+document.addEventListener('wheel', function(){
+    mouseStateTime = new Date().getTime();
+    mouseState = 'wheel';
+});
+setInterval(function(){
+    if(mouseState == 'wheel' && new Date().getTime() - mouseStateTime > 1000) {
+        console.log(111);
+        if(!mouseTouchStart) {
+            mouseState = 'up';
+        }
+    }
+},100);
+
 var Selected = function() {
     this.audio = document.getElementById('audio');
     this.lyricContainer = document.getElementById('lyricContainer');
@@ -636,6 +666,8 @@ var Selected = function() {
     this.last = -1;
     this.lastXrcLetterI = null;
     this.lastXrcLetterJ = null;
+    //this.lyricTranslate is only for .xrc .
+    this.lyricTranslate = null;
     this.audio_name = [];
     this.audio_artist = [];
     this.audio_album = [];
@@ -719,13 +751,23 @@ Selected.prototype = {
             }
         }, false);
 
+        var bgMode = localStorage.getItem("bgMode");
+        if(bgMode == null) {
+            bgMode = "imageBg";
+            localStorage.setItem("bgMode","imageBg");
+        }
+        document.getElementsByTagName('html')[0].className = bgMode;
+
         //initialize the background setting
         document.getElementById('bg_dark').addEventListener('click', function() {
             document.getElementsByTagName('html')[0].className = 'colorBg';
+            localStorage.setItem("bgMode","colorBg");
         });
         document.getElementById('bg_pic').addEventListener('click', function() {
             document.getElementsByTagName('html')[0].className = 'imageBg';
+            localStorage.setItem("bgMode","imageBg");
         });
+
         //initially start from a random song
         for (var i = allSongs.length - 1; i >= 0; i--) {
             allSongs[i].className = '';
@@ -733,7 +775,7 @@ Selected.prototype = {
         currentSong.className = 'current-song';
 
         //sync the lyric
-        this.audio.addEventListener("timeupdate", function(e) {
+        this.audio.addEventListener("timeupdate", function() {
             that.syncLyric();
         });
 
@@ -758,27 +800,6 @@ Selected.prototype = {
             }catch(error){
                 console.error("ERROR:" + error);
             }
-            // try{
-            //     if(!that.lyric)return;
-            //     // because preload by 0.25s,this need preload by 0.25s,too.
-            //     var currentTime = that.audio.currentTime + 0.25;
-            //     for (var i = 0 ; i < that.lyric.length; i++) {
-            //         var lyricInline = that.lyric[i];
-            //         //find the line
-            //         if(currentTime < lyricInline[lyricInline.length - 1][2]){                        
-            //             for(var j = 0 ; j < lyricInline.length ; j++){
-            //                 if(currentTime <= lyricInline[j][2]) {
-            //                     var letter = document.getElementById('line-' + i + '-' + j);
-            //                     letter.style.animationPlayState = "running";
-            //                     break;
-            //                 }
-            //             }
-            //             break;
-            //         }
-            //     }
-            // }catch(error){
-            //     console.error("ERROR:" + error);
-            // }
         });
 
         this.play(randomSong);
@@ -846,12 +867,13 @@ Selected.prototype = {
             return true;
         }else return false;
     },
-    play: function(songName,tool = -1) {
+    play: function(songName) {
+
+        this.lyricTranslate = null;
 
         // clean the flag of animation.
         this.lastXrcLetterI = this.lastXrcLetterJ = null;
 
-        console.log("PLAYER.play(" + songName + (tool != -1 ? ',' + tool : '')  + ');');
         var that = this;
 
         this.lyricContainer.textContent = 'loading song...';
@@ -868,11 +890,6 @@ Selected.prototype = {
         });
 
         this.audio.play();
-
-        if(tool !=-1){
-            this.play(tool);
-            return;
-        }
 
         //scroll to which is playing
         var playlist_ol = document.getElementById("playlist_ol");
@@ -917,6 +934,7 @@ Selected.prototype = {
         var lyric = await this.getLyricFetch(url + '.xrc');
         if(lyric != null){
             this.lyricMode = "xrc";
+            this.lyricTranslate = await this.getLyricFetch(url + '_ts.xrc');
         }else{
             this.lyricMode = "lrc";
             lyric = await this.getLyricFetch(url + '.lrc');
@@ -989,7 +1007,6 @@ Selected.prototype = {
                 lyric.push(inline);
             }
         });
-        // console.log(lyric);
         return lyric;
     },
     parseLyric: function(text) {
@@ -1014,7 +1031,9 @@ Selected.prototype = {
             if(lyric.length > 1){
                 line.addEventListener("click", function(){
                     that.audio.currentTime = v[0];
-                    document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
+                    if(mouseState == 'up'){
+                        document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
+                    }
                 });
             }
             line_p.appendChild(line);
@@ -1023,9 +1042,33 @@ Selected.prototype = {
         lyricContainer.appendChild(fragment);
     },
     appendLyricXrc: function(lyric) {
+
+        var translateIsEnabled = false;
+
+        var lyricTranslate = null;
+        
+        if(this.lyricTranslate != null) {
+            translateIsEnabled = true;
+            lyricTranslate = this.parseLyricLrc(this.lyricTranslate);
+
+            for(var i = 0 , j = 0; i < lyricTranslate.length ; i++){
+                if(lyricTranslate[i][1] == '//\r' || lyricTranslate[i][1] == '\r' || lyricTranslate[i][1] == '//' || lyricTranslate[i][1] == ''){
+                    continue;
+                }else{
+                    lyricTranslate[j++]=lyricTranslate[i];
+                }
+            }
+            lyricTranslate.length = j;
+
+            console.log(lyricTranslate);
+            console.log(lyric);
+        }
+
         var that = this;
         var lyricContainer = this.lyricContainer,
             fragment = document.createDocumentFragment();
+        
+        var pointer = 0;
         //clear the lyric container first
         this.lyricContainer.innerHTML = '';
         for(var i = 0;i < lyric.length;i++){
@@ -1069,10 +1112,38 @@ Selected.prototype = {
 
                 that.audio.currentTime = this.getAttribute("start-time");
                 that.audio.play();
-                document.getElementById("lyricWrapper").scrollTop = this.offsetTop;
+                if(mouseState == 'up'){
+                    document.getElementById("lyricWrapper").scrollTop = this.offsetTop;
+                }
             });
             line_p.appendChild(line);
             fragment.appendChild(line_p);
+
+            // Add translated lyrics
+            if(translateIsEnabled && pointer < lyricTranslate.length) {
+                var minus = Math.abs(lyric[i][0][1] - lyricTranslate[pointer][0]);
+
+                if(minus <= 0.01) {
+                    var line_p = document.createElement('p');
+                    var line = document.createElement('span');
+                    line.textContent = lyricTranslate[pointer++][1];
+
+                    line.setAttribute('start-time',lyric[i][0][1]);
+
+                    line.addEventListener("click", function(){
+                        that.audio.play();
+                        if(mouseState == 'up'){
+                            var lyricWrapper = document.getElementById("lyricWrapper");
+                            var offsetTop = this.parentNode.previousSibling.offsetTop;
+                            lyricWrapper.scrollTop = offsetTop;
+                        }
+                        that.audio.currentTime = this.getAttribute('start-time');
+                    });
+
+                    line_p.appendChild(line);
+                    fragment.appendChild(line_p);
+                }
+            }
         }
         lyricContainer.appendChild(fragment);
     },
@@ -1104,7 +1175,9 @@ Selected.prototype = {
 
                     if(i != this.last){
                         this.last=i;
-                        document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
+                        if(mouseState == 'up'){
+                            document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
+                        }
                     }
 
                     //for the lyric to MediaSession
@@ -1150,7 +1223,7 @@ Selected.prototype = {
             for (var i = 0 ; i < this.lyric.length; i++) {
                 var lyricInline = this.lyric[i];
                 //find the line
-                if(currentTime < lyricInline[lyricInline.length - 1][2]){
+                if(currentTime <= lyricInline[lyricInline.length - 1][2] + 0.25){
 
                     var line = document.getElementById('line-' + i);
 
@@ -1160,7 +1233,9 @@ Selected.prototype = {
 
                     // scroll
                     if(i != this.last){
-                        document.getElementById("lyricWrapper").scrollTop = document.getElementById('line-' + i).offsetTop;
+                        if(mouseState == 'up'){
+                            document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
+                        }
                         this.last = i;
                     }
                     
@@ -1172,8 +1247,7 @@ Selected.prototype = {
                             letter.classList.add('current-line-xrc-played-' + this.lyricStyle);
                             letter.classList.remove('current-line-xrc-playing-' + this.lyricStyle);
                         } else {
-                            
-                            
+                            if(currentTime < lyricInline[j][1]) break;
 
                             letter.classList.add('current-line-xrc-playing-' + this.lyricStyle);
 
@@ -1183,11 +1257,17 @@ Selected.prototype = {
                                 letter.style.animationDuration = (lyricInline[j][2] - lyricInline[j][1]) + 's';
                                 this.lastXrcLetterI = i;
                                 this.lastXrcLetterJ = j;
+
+                                if(pipWindowIsOpened){
+                                    pipWindowFillXrc(document.getElementById('line-' + this.lastXrcLetterI));
+                                }
                             }
 
                             break;
                         }
                     }
+
+                    
 
                     for(i++ ; i < this.lyric.length ; i++) {
                         try {
@@ -1218,9 +1298,6 @@ Selected.prototype = {
                         console.error("error on #" + i);
                     }
                 }
-            }
-            if(pipWindowIsOpened){
-                pipWindowFillXrc(document.getElementById('line-' + this.lastXrcLetterI));
             }
         }catch(error){
             console.error("ERROR:" + error);

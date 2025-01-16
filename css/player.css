@@ -212,7 +212,8 @@ a:hover {
 }
 /* xrc */
 .current-line {
-    font-size: 1.4em;
+    transition: font-size 0.025s linear;
+    font-size: 1.6em;
 }
 
 .current-line-xrc {
@@ -499,10 +500,24 @@ a:hover {
     padding: 10px;
     border-bottom: 1px solid #eee;
     cursor: pointer;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    text-align: center;
 }
 
 #search-results li:hover {
     background-color: #f1f1f1;
+}
+
+#search-results li img {
+    height: 3em;
+    width: auto;
+    /* text-align: center; */
+}
+#search-results li span {
+    margin-left: 1em;
+    /* text-align: center; */
 }
 
 /* for mobile */
