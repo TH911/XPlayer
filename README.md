@@ -96,7 +96,7 @@ To avoid differences across different devices and browsers.
 - $\leftarrow$: Rewind 10s.
 - $\rightarrow$: Fast forward 10s.
 
-Uses responsive design, see [Technical Implementation/Interface](#接口) for more.
+Uses responsive design, see [Technical Implementation/API](#API) for more.
 
 ### Spectrum Bar
 
@@ -163,6 +163,8 @@ On mobile devices, the playlist and search bar are hidden as buttons, which can 
 ### Word-by-Word Lyrics
 
 Uses the `animation` property in CSS, where the lyrics are parsed, and the `animation-duration` property is added to change the `background-size` from `0% 100%` to `100% 100%` (with the text color being transparent).
+
+# 中文
 
 ## 简介
 
