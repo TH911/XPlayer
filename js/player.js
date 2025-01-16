@@ -1219,7 +1219,9 @@ Selected.prototype = {
                     }
                 }
             }
-            pipWindowFillXrc(document.getElementById('line-' + this.lastXrcLetterI));
+            if(pipWindowIsOpened){
+                pipWindowFillXrc(document.getElementById('line-' + this.lastXrcLetterI));
+            }
         }catch(error){
             console.error("ERROR:" + error);
         }
