@@ -464,7 +464,7 @@ async function pipWindowCreate(Width,Height) {
         height: Height
     });
     pipWindowIsOpened = true;
-    
+
     pipWindow.document.addEventListener("keydown",function(e) {
         if(e.key == 'p'){
             pipWindow.close();
@@ -553,7 +553,7 @@ async function pipWindowFill(text,text_translate) {
     
     tool.style.fontSize = Math.min(Math.floor((pipWindow.innerWidth-40) / text_length),pipWindow.innerHeight-20) + 'px';
 
-    tool.style.color = ['#FAFA17','#ff1493','#adff2f','#d731f8'][PLAYER.lyricStyle];
+    tool.style.color = ['#FAFA17','#ff1493','#adff2f','#d731f8','#00CC65'][PLAYER.lyricStyle];
     pipWindow.document.body.innerHTML = '';
     pipWindow.addEventListener('resize',function() {
         var tool = pipWindow.document.getElementById("tool");
@@ -623,6 +623,7 @@ window.onload = function() {
     PLAYER.init();
 };
 var mouseState = 'up',mouseStateTime = 0,mouseTouchStart = false;
+var mouseInLyricContainer = false;
 document.addEventListener('touchstart', function(){
     mouseStateTime = new Date().getTime();
     mouseState = 'down';
@@ -641,13 +642,20 @@ document.addEventListener('touchend', function(){
     mouseState = 'up';
     mouseTouchStart = false;
 });
+document.getElementById('lyricContainer').addEventListener('mouseenter',function(){
+    mouseInLyricContainer = true;
+});
+document.getElementById('lyricContainer').addEventListener('mouseleave', function(){
+    mouseInLyricContainer = false;
+});
 document.addEventListener('wheel', function(){
-    mouseStateTime = new Date().getTime();
-    mouseState = 'wheel';
+    if(mouseInLyricContainer){
+        mouseStateTime = new Date().getTime();
+        mouseState = 'wheel';
+    }
 });
 setInterval(function(){
-    if(mouseState == 'wheel' && new Date().getTime() - mouseStateTime > 1000) {
-        console.log(111);
+    if(mouseState == 'wheel' && new Date().getTime() - mouseStateTime > 1500) {
         if(!mouseTouchStart) {
             mouseState = 'up';
         }
@@ -915,7 +923,7 @@ Selected.prototype = {
         //empty the lyric
         this.lyric = null;
         // this.lyricStyle = 1;
-        this.lyricStyle = Math.floor(Math.random() * 4);
+        this.lyricStyle = Math.floor(Math.random() * 5);
         //1145141919810
     },
     getLyricFetch: async function(url) {
@@ -975,12 +983,30 @@ Selected.prototype = {
         return result;
     },
     parseLyricXrc: function(text) {
-        text = text.match(/<Lyric_1 LyricType="1" LyricContent="([^"]+)"/);
+        // text = text.match(/<Lyric_1 LyricType="1" LyricContent="([^"]+)"/);
+        var parser = new DOMParser();
+        var xmlDoc = parser.parseFromString(text,"text/xml");
+        console.log(xmlDoc);
+        try {
+            text = xmlDoc.getElementsByTagName("Lyric_1")[0].getAttribute("LyricContent");
+        } catch(err) {
+            console.error(err);
+            alert(".xrc 歌词解析出错.\nfailed to load lyric.");
+        }
+        var tmpText = [];
+        for(var i = 0 ; i < text.length ; i++){
+            if(text[i] == '[' && i > 0){
+                tmpText += '\n';
+            }
+            tmpText += text[i];
+        }
+        text=tmpText;
         if (!text) {
             return null;
         }
         
-        const lyricContent = text[1];
+        // const lyricContent = text[1];
+        const lyricContent = text;
         
         const lines = lyricContent.split('\n').filter(line => line.trim() !== '');
     
@@ -1049,6 +1075,7 @@ Selected.prototype = {
         
         if(this.lyricTranslate != null) {
             translateIsEnabled = true;
+            console.log("Translating lyrics is available.");
             lyricTranslate = this.parseLyricLrc(this.lyricTranslate);
 
             for(var i = 0 , j = 0; i < lyricTranslate.length ; i++){
@@ -1121,9 +1148,10 @@ Selected.prototype = {
 
             // Add translated lyrics
             if(translateIsEnabled && pointer < lyricTranslate.length) {
+
                 var minus = Math.abs(lyric[i][0][1] - lyricTranslate[pointer][0]);
 
-                if(minus <= 0.01) {
+                if(minus <= 1) {
                     var line_p = document.createElement('p');
                     var line = document.createElement('span');
                     line.textContent = lyricTranslate[pointer++][1];

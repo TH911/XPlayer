@@ -22,9 +22,11 @@ Supports both traditional `lrc` format lyrics and `xrc` format **word-by-word ly
 
 It will first attempt to load the `xrc` format word-by-word lyrics, and if that fails, it will attempt to load the traditional `lrc` format lyrics.
 
-There are four colors for the lyrics, chosen randomly each time.
+There are five colors for the lyrics, chosen randomly each time.
 
-The four color hex codes are: `#FAFA17`, `#FF1493`, `#ADFF2F`, `#D731F8`.
+Five color hex codes are: `#FAFA17`, `#FF1493`, `#ADFF2F`, `#D731F8`,`#00CC65`.
+
+They're : $\colorbox{black}{\colorbox{#FAFA17}{\color{#FAFA17}{1}}\ \colorbox{#FF1493}{\color{#FF1493}{1}}\ \colorbox{#ADFF2F}{\color{#ADFF2F}{1}} \ \colorbox{#D731F8}{\color{#D731F8}{1}}\ \colorbox{#00CC65}{\color{#00CC65}{1}}}$ .
 
 #### `xrc` Format
 
@@ -164,6 +166,16 @@ On mobile devices, the playlist and search bar are hidden as buttons, which can 
 
 Uses the `animation` property in CSS, where the lyrics are parsed, and the `animation-duration` property is added to change the `background-size` from `0% 100%` to `100% 100%` (with the text color being transparent).
 
+#### lyric file
+
+Because `.xrc` use xm,so:
+
+* `&` to `&amp;`
+* `"` to `&quot;`
+* `'` to `&apos`
+* `<` to `&lt;`
+* `>` to `&gt;`
+
 # 中文
 
 ## 简介
@@ -182,9 +194,11 @@ Uses the `animation` property in CSS, where the lyrics are parsed, and the `anim
 
 会先尝试加载 `xrc` 格式的逐字歌词，失败则会尝试加载 `lrc` 格式的传统歌词。
 
-歌词的颜色有四种，每次随机选择。
+歌词的颜色有五种，每次随机选择。
 
-四种颜色的十六进制码：`#FAFA17`、`#FF1493`、`#ADFF2F`、`#D731F8`。
+五种颜色的十六进制码：`#FAFA17`、`#FF1493`、`#ADFF2F`、`#D731F8`,`#00CC65`。
+
+预览：$\colorbox{black}{\colorbox{#FAFA17}{\color{#FAFA17}{1}}\ \colorbox{#FF1493}{\color{#FF1493}{1}}\ \colorbox{#ADFF2F}{\color{#ADFF2F}{1}} \ \colorbox{#D731F8}{\color{#D731F8}{1}}\ \colorbox{#00CC65}{\color{#00CC65}{1}}}$ 。
 
 #### `xrc` 格式
 
@@ -325,3 +339,13 @@ XPlayer 作为静态播放器，肯定会需要一个 `json` 文件来作为配�
 ### 逐字歌词
 
 使用 css 的 `animation` 属性，解析歌词后为其添加 `animation-duration` 属性操作 `background-size` 从 `0% 100%` 变为 `100% 100%`（文字颜色为透明）。
+
+#### 文件解析
+
+使用的是 xml 格式，因此应当注意：
+
+* `&` 需被转义为 `&amp;`
+* `"` 需被转义为 `&quot;`
+* `'` 需被转义为 `&apos`
+* `<` 被转义为 `&lt;`
+* `>` 被转义为 `&gt;`

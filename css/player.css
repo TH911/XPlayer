@@ -172,6 +172,7 @@ a:hover {
 /* http://stackoverflow.com/questions/13426875/text-border-using-css-border-around-text */
 
 #lyricContainer {
+    background-clip: text;
     position: relative;
     top: 130px;
     text-shadow: 1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000; 
@@ -210,9 +211,15 @@ a:hover {
     font-weight: bolder;
     font-size: 1.4em;
 }
+.current-line-4 {
+    width: auto;
+    color: #00CC65;
+    font-weight: bolder;
+    font-size: 1.4em;
+}
 /* xrc */
 .current-line {
-    transition: font-size 0.025s linear;
+    transition: font-size 0.015s linear;
     font-size: 1.6em;
 }
 
@@ -264,6 +271,17 @@ a:hover {
     background-size: 0% 100%;
     color: transparent;
 }
+.current-line-xrc-4 {
+    text-shadow: none !important;
+    font-weight: bolder;
+    transition-property: color;
+    transition-duration: 0s;
+    transition-timing-function: linear;
+    background:#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0;
+    background-clip: text;
+    background-size: 0% 100%;
+    color: transparent;
+}
 .current-line-xrc-played-0 {
     background:#fff -webkit-linear-gradient(left, #FAFA17, #FAFA17) no-repeat 0 0;
     background-size: 100% 100% !important;
@@ -278,6 +296,10 @@ a:hover {
 }
 .current-line-xrc-played-3 {
     background:#fff -webkit-linear-gradient(left, #d731f8, #d731f8) no-repeat 0 0;
+    background-size: 100% 100% !important;
+}
+.current-line-xrc-played-4 {
+    background:#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0;
     background-size: 100% 100% !important;
 }
 @keyframes lyric_sync_letter {
@@ -299,6 +321,9 @@ a:hover {
 }
 .current-line-xrc-playing-3 {
     background:#fff -webkit-linear-gradient(left, #d731f8, #d731f8) no-repeat 0 0;
+}
+.current-line-xrc-playing-4 {
+    background:#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0;
 }
 .current-song-played, .current-song-played a {
     color: #1493dd;
@@ -511,7 +536,7 @@ a:hover {
 }
 
 #search-results li img {
-    height: 3em;
+    height: 2em;
     width: auto;
     /* text-align: center; */
 }
