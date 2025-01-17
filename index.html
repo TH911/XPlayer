@@ -6,7 +6,28 @@
         <meta name="description" content="A simple online html music player,with TH911 Blog">
         <meta name="author" content="TH911">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- title and icon -->
         <title>XPlayer</title>
+        <link rel="icon" href="img/favicon.ico">
+        <link rel="shortcut icon" href="img/favicon.ico">
+
+        <!-- preload fonts -->
+        <link rel="preload" href="fonts/default.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="fonts/kaiti.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="fonts/songti.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="fonts/huawenxingkai.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="fonts/youyuan.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="fonts/fangzhengshuti.woff2" as="font" type="font/woff2" crossorigin>
+        <!-- preload json -->
+        <link rel="preload" href="json/content.json" type="text/json" crossorigin>
+        <!-- preload js -->
+        <link rel="preload" href="js/player.min.js" type="text/js">
+        <link rel="preload" href="js/jquery.min.js" type="text/js">
+
+        <!-- PWA -->
+        <link rel="manifest" href="json/manifest.json">
+
         <link rel="stylesheet" href="css/player.min.css">
     </head>
     <body>
@@ -21,7 +42,7 @@
         </script>
         
         <!-- jQuery -->
-        <script src="https://s4.zstatic.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+        <script src="js/jquery.min.js"></script>
         <!-- <script src="js/jquery.min.js"></script> -->
 
         <header id="header">

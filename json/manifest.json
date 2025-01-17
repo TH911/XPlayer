@@ -1,0 +1,15 @@
+{
+    "name": "XPlayer",
+    "short_name": "XPlayer",
+    "description": "A simple music player.",
+    "icons": [{
+      "src": "/img/favicon.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }],
+    "background_color": "#fff",
+    "theme_color": "#000",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait"
+  }
