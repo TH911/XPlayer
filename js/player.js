@@ -434,6 +434,9 @@ function font_change(font){
     document.getElementById("menu_font_" + font).style.color = "#fff";
     var lyricWrapper = document.getElementById("lyricWrapper");
     lyricWrapper.style.fontFamily = font;
+    if(pipWindowIsOpened){
+        pipWindow.document.body.style.fontFamily = font;
+    }
     switch(font){
         case "fordefault":
             lyricWrapper.style.fontSize = "16px";
@@ -464,6 +467,11 @@ async function pipWindowCreate(Width,Height) {
         height: Height
     });
     pipWindowIsOpened = true;
+
+    pipWindow.addEventListener('resize', function(){
+        var node = document.getElementById('line-' + PLAYER.lastXrcLetterI);
+        pipWindowFillXrc(node);
+    });
 
     pipWindow.document.addEventListener("keydown",function(e) {
         if(e.key == 'p'){
@@ -518,7 +526,11 @@ async function pipWindowCreate(Width,Height) {
             console.error("ERROR:" + error);
         }
     } else {
-        pipWindow.document.head.innerHTML = '<link rel="stylesheet" href="css/player.css">';
+        pipWindow.document.head.innerHTML = document.head.innerHTML;
+        var link = document.createElement('link');
+        link.innerHTML = '<link rel="stylesheet" href="css/pipWindow.min.css">'
+        pipWindow.document.head.appendChild(link);
+        pipWindow.document.body.style.fontFamily = localStorage.getItem("player_font");
         pipWindowFillXrc(document.getElementById('line-' + PLAYER.lastXrcLetterI));
     }
 }
@@ -578,13 +590,34 @@ async function pipWindowFill(text,text_translate) {
     }
 
     pipWindow.document.body.appendChild(tool);
+
+    var name = PLAYER.audio_name[PLAYER.currentIndex+1];
+    var artist = PLAYER.audio_artist[PLAYER.currentIndex+1];
+    pipWindow.document.body.title = name + ' - ' + artist + ' | XPlayer';
 }
 async function pipWindowFillXrc(node) {
     pipWindow.document.body.classList.add('current-line-xrc-' + PLAYER.lyricStyle);
-    console.log(document.getElementById('line-' + PLAYER.lastXrcLetterI));
     pipWindow.document.body.innerHTML = '';
-    pipWindow.document.body.appendChild(node.cloneNode(2));
-    // pipWindow.document.body.style.backgroundColor = "#000";
+    var newNode = node.cloneNode(2);
+    var fontSize = pipWindow.innerHeight - 20;
+    newNode.style.fontSize = fontSize + 'px';
+    newNode.classList.add('pipWindowLyric');
+    Array.from(newNode.children).forEach(element => {
+        element.classList.add('lyricInline');
+    });
+    newNode.style.lineHeight = pipWindow.innerHeight + 'px';
+    pipWindow.document.body.appendChild(newNode);
+    pipWindow.document.body.style.height = pipWindow.innerHeight + 'px';
+    
+    var middleNode = pipWindow.document.getElementById('line-' + PLAYER.lastXrcLetterI + '-' + PLAYER.lastXrcLetterJ);
+    var distance = middleNode.offsetLeft + pipWindowFillTextLength(middleNode.textContent) * fontSize - pipWindow.innerWidth/2;
+    pipWindow.scrollTo({
+        left: distance
+    });
+
+    var name = PLAYER.audio_name[PLAYER.currentIndex+1];
+    var artist = PLAYER.audio_artist[PLAYER.currentIndex+1];
+    pipWindow.document.body.title = name + ' - ' + artist + ' | XPlayer';
 }
 
 var keydownForPipWindow=0;
@@ -793,6 +826,10 @@ Selected.prototype = {
                 if(that.lastXrcLetterI != null) {
                     var letter = document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
                     letter.style.animationPlayState = "paused";
+                    if(pipWindowIsOpened){
+                        var letter = pipWindow.document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                        letter.style.animationPlayState = "paused";
+                    }
                 }
             }catch(error){
                 console.error("ERROR:" + error);
@@ -804,6 +841,10 @@ Selected.prototype = {
                 if(that.lastXrcLetterI) {
                     var letter = document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
                     letter.style.animationPlayState = "running";
+                    if(pipWindowIsOpened){
+                        var letter = pipWindow.document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                        letter.style.animationPlayState = "paused";
+                    }
                 }
             }catch(error){
                 console.error("ERROR:" + error);
@@ -922,7 +963,7 @@ Selected.prototype = {
         this.lyricContainer.style.top = Math.floor((screenHeight-100)*0.4);
         //empty the lyric
         this.lyric = null;
-        // this.lyricStyle = 1;
+        // this.lyricStyle = 4;
         this.lyricStyle = Math.floor(Math.random() * 5);
         //1145141919810
     },
@@ -1054,6 +1095,7 @@ Selected.prototype = {
             line.id = 'line-' + i;
             line.textContent = v[1];
             line.style.backgroundClip = "text";
+            line.style.webkitBackgroundClip = "text";
             if(lyric.length > 1){
                 line.addEventListener("click", function(){
                     that.audio.currentTime = v[0];
@@ -1109,6 +1151,7 @@ Selected.prototype = {
             for(var j = 0;j < lyric[i].length;j++){
                 var letter = document.createElement('span');
                 letter.style.backgroundClip = "text";
+                letter.style.webkitBackgroundClip = "text";
                 letter.id = line.id + '-' + j;
                 letter.textContent = lyric[i][j][0];
                 // letter.setAttribute('start-time',lyric[i][j][1]);

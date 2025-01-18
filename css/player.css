@@ -172,6 +172,7 @@ a:hover {
 /* http://stackoverflow.com/questions/13426875/text-border-using-css-border-around-text */
 
 #lyricContainer {
+    -webkit-background-clip: text;
     background-clip: text;
     position: relative;
     top: 130px;
@@ -234,6 +235,7 @@ a:hover {
     transition-duration: 0s;
     transition-timing-function: linear;
     background:#fff -webkit-linear-gradient(left, #FAFA17, #FAFA17) no-repeat 0 0;
+    -webkit-background-clip: text;
     background-clip: text;
     background-size: 0% 100%;
     color: transparent;
@@ -245,6 +247,7 @@ a:hover {
     transition-duration: 0s;
     transition-timing-function: linear;
     background:#fff -webkit-linear-gradient(left, #ff1493, #ff1493) no-repeat 0 0;
+    -webkit-background-clip: text;
     background-clip: text;
     background-size: 0% 100%;
     color: transparent;
@@ -256,6 +259,7 @@ a:hover {
     transition-duration: 0s;
     transition-timing-function: linear;
     background:#fff -webkit-linear-gradient(left, #adff2f, #adff2f) no-repeat 0 0;
+    -webkit-background-clip: text;
     background-clip: text;
     background-size: 0% 100%;
     color: transparent;
@@ -267,6 +271,7 @@ a:hover {
     transition-duration: 0s;
     transition-timing-function: linear;
     background:#fff -webkit-linear-gradient(left, #d731f8, #d731f8) no-repeat 0 0;
+    -webkit-background-clip: text;
     background-clip: text;
     background-size: 0% 100%;
     color: transparent;
@@ -278,6 +283,7 @@ a:hover {
     transition-duration: 0s;
     transition-timing-function: linear;
     background:#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0;
+    -webkit-background-clip: text;
     background-clip: text;
     background-size: 0% 100%;
     color: transparent;

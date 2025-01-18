@@ -1,0 +1,135 @@
+/* xrc */
+/* .current-line {
+    transition: font-size 0.015s linear;
+    font-size: 1.6em;
+}
+
+.current-line-xrc {
+    text-shadow: none;
+    font-weight: bolder;
+}
+.current-line-xrc-0 {
+    text-shadow: none !important;
+    font-weight: bolder;
+    transition-property: color;
+    transition-duration: 0s;
+    transition-timing-function: linear;
+    background:#fff -webkit-linear-gradient(left, #FAFA17, #FAFA17) no-repeat 0 0;
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-size: 0% 100%;
+    color: transparent;
+}
+.current-line-xrc-1 {
+    text-shadow: none !important;
+    font-weight: bolder;
+    transition-property: color;
+    transition-duration: 0s;
+    transition-timing-function: linear;
+    background:#fff -webkit-linear-gradient(left, #ff1493, #ff1493) no-repeat 0 0;
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-size: 0% 100%;
+    color: transparent;
+}
+.current-line-xrc-2 {
+    text-shadow: none !important;
+    font-weight: bolder;
+    transition-property: color;
+    transition-duration: 0s;
+    transition-timing-function: linear;
+    background:#fff -webkit-linear-gradient(left, #adff2f, #adff2f) no-repeat 0 0;
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-size: 0% 100%;
+    color: transparent;
+}
+.current-line-xrc-3 {
+    text-shadow: none !important;
+    font-weight: bolder;
+    transition-property: color;
+    transition-duration: 0s;
+    transition-timing-function: linear;
+    background:#fff -webkit-linear-gradient(left, #d731f8, #d731f8) no-repeat 0 0;
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-size: 0% 100%;
+    color: transparent;
+}
+.current-line-xrc-4 {
+    text-shadow: none !important;
+    font-weight: bolder;
+    transition-property: color;
+    transition-duration: 0s;
+    transition-timing-function: linear;
+    background:#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0;
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-size: 0% 100%;
+    color: transparent;
+}
+.current-line-xrc-played-0 {
+    background:#fff -webkit-linear-gradient(left, #FAFA17, #FAFA17) no-repeat 0 0;
+    background-size: 100% 100% !important;
+}
+.current-line-xrc-played-1 {
+    background:#fff -webkit-linear-gradient(left, #ff1493, #ff1493) no-repeat 0 0;
+    background-size: 100% 100% !important;
+}
+.current-line-xrc-played-2 {
+    background:#fff -webkit-linear-gradient(left, #adff2f, #adff2f) no-repeat 0 0;
+    background-size: 100% 100% !important;
+}
+.current-line-xrc-played-3 {
+    background:#fff -webkit-linear-gradient(left, #d731f8, #d731f8) no-repeat 0 0;
+    background-size: 100% 100% !important;
+}
+.current-line-xrc-played-4 {
+    background:#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0;
+    background-size: 100% 100% !important;
+}
+@keyframes lyric_sync_letter {
+    0% {
+        background-size:0 100%;
+    }
+    100% {
+        background-size:100% 100%;
+    }
+}
+.current-line-xrc-playing-0 {
+    background:#fff -webkit-linear-gradient(left, #FAFA17, #FAFA17) no-repeat 0 0;
+}
+.current-line-xrc-playing-1 {
+    background:#fff -webkit-linear-gradient(left, #ff1493, #ff1493) no-repeat 0 0;
+}
+.current-line-xrc-playing-2 {
+    background:#fff -webkit-linear-gradient(left, #adff2f, #adff2f) no-repeat 0 0;
+}
+.current-line-xrc-playing-3 {
+    background:#fff -webkit-linear-gradient(left, #d731f8, #d731f8) no-repeat 0 0;
+}
+.current-line-xrc-playing-4 {
+    background:#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0;
+} */
+
+html {
+    background: #000;
+}
+
+body {
+    text-align: center;
+    position: relative;
+    white-space: nowrap;
+    min-width: min-content;
+}
+body::-webkit-scrollbar {
+    display: none;
+}
+
+span.pipWindowLyric {
+    line-height: 100%;
+}
+
+span.lyricInline {
+    display: inline;
+}
