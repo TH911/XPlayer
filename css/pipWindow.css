@@ -126,10 +126,14 @@ body::-webkit-scrollbar {
     display: none;
 }
 
-span.pipWindowLyric {
+/* span.pipWindowLyric {
     line-height: 100%;
 }
 
-span.lyricInline {
+span.pipWindowLyricTranslate {
+    line-height: 50%;
+} */
+
+/* span.lyricInline {
     display: inline;
-}
+} */

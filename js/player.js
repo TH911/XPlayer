@@ -461,10 +461,17 @@ function hide_playmode(){
 }
 
 var pipWindow,pipWindowIsOpened = false;
-async function pipWindowCreate(Width,Height) {
+async function pipWindowCreate() {
+    var pipWindowHeight = 52;
+    // if(PLAYER.lyricTranslate != null){
+    //     pipWindowHeight *=2;
+    // }
+    // if(pipWindowIsOpened && pipWindowHeight == pipWindow.innerHeight){
+    //     return;
+    // }
     pipWindow = await window.documentPictureInPicture.requestWindow({
-        width: Width,
-        height: Height
+        width: 350,
+        height: pipWindowHeight
     });
     pipWindowIsOpened = true;
 
@@ -475,8 +482,8 @@ async function pipWindowCreate(Width,Height) {
 
     pipWindow.document.addEventListener("keydown",function(e) {
         if(e.key == 'p'){
+            pipWindowIsOpened=false;
             pipWindow.close();
-            keydownForPipWindow=0;
         }
         if(e.key == ' '){
             if(PLAYER.audio.paused)PLAYER.audio.play();
@@ -491,8 +498,11 @@ async function pipWindowCreate(Width,Height) {
         }
     });
     pipWindow.addEventListener('beforeunload',function() {
-        keydownForPipWindow = 0;
         pipWindowIsOpened = false;
+    });
+    pipWindow.addEventListener('click', function(){
+        if(PLAYER.audio.paused)PLAYER.audio.play();
+        else PLAYER.audio.pause();
     });
 
     console.log("pipWindow has created.");
@@ -525,14 +535,14 @@ async function pipWindowCreate(Width,Height) {
         }catch(error){
             console.error("ERROR:" + error);
         }
-    } else {
+    }// else {
         pipWindow.document.head.innerHTML = document.head.innerHTML;
         var link = document.createElement('link');
         link.innerHTML = '<link rel="stylesheet" href="css/pipWindow.min.css">'
         pipWindow.document.head.appendChild(link);
         pipWindow.document.body.style.fontFamily = localStorage.getItem("player_font");
         pipWindowFillXrc(document.getElementById('line-' + PLAYER.lastXrcLetterI));
-    }
+    //}
 }
 function pipWindowFillTextLength(text){
     //get the length(1 for Chinese,0.5 for English).
@@ -560,6 +570,8 @@ async function pipWindowFill(text,text_translate) {
     tool.style.fontFamily = localStorage.getItem("player_font");
     tool.style.textShadow = "1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000";
     tool.style.fontWeight = "bolder";
+    tool.style.lineHeight = pipWindow.innerHeight + 'px';
+    tool.style.margin = "auto";
     
     var text_length = pipWindowFillTextLength(text);
     
@@ -572,7 +584,7 @@ async function pipWindowFill(text,text_translate) {
         tool.fontSize = Math.min(Math.floor((pipWindow.innerWidth-40) / tool.textContent.length),pipWindow.innerHeight-20) + 'px';
     });
     tool.style.textAlign = "center";
-    tool.style.lineHeight = pipWindow.innerHeight-20 + 'px';
+    tool.style.lineHeight = pipWindow.innerHeight + 'px';
 
     if(text_translate != null){
         var text_translate_length = pipWindowFillTextLength(text_translate);
@@ -580,7 +592,7 @@ async function pipWindowFill(text,text_translate) {
         tool.textContent = text + '' + text_translate;
         var tool_text = document.createElement('div');
         var tool_text_translate = document.createElement('div');
-        tool.style.lineHeight = Math.floor((pipWindow.innerHeight-20)/2) + 'px';
+        tool.style.lineHeight = Math.floor(pipWindow.innerHeight/2) + 'px';
         tool.textContent = "";
         tool_text.textContent = text;
         tool_text_translate.textContent = text_translate;
@@ -599,20 +611,56 @@ async function pipWindowFillXrc(node) {
     pipWindow.document.body.classList.add('current-line-xrc-' + PLAYER.lyricStyle);
     pipWindow.document.body.innerHTML = '';
     var newNode = node.cloneNode(2);
-    var fontSize = pipWindow.innerHeight - 20;
-    newNode.style.fontSize = fontSize + 'px';
-    newNode.classList.add('pipWindowLyric');
-    Array.from(newNode.children).forEach(element => {
-        element.classList.add('lyricInline');
-    });
-    newNode.style.lineHeight = pipWindow.innerHeight + 'px';
-    pipWindow.document.body.appendChild(newNode);
-    pipWindow.document.body.style.height = pipWindow.innerHeight + 'px';
+    if(PLAYER.lyricTranslate == null){
+        var fontSize = pipWindow.innerHeight - 20;
+        newNode.style.fontSize = fontSize + 'px';
+        
+        Array.from(newNode.children).forEach(element => {
+            element.classList.add('lyricInline');
+        });
+
+        newNode.style.lineHeight = pipWindow.innerHeight + 'px';
+        pipWindow.document.body.appendChild(newNode);
+        pipWindow.document.body.style.height = pipWindow.innerHeight + 'px';
+    } else {
+        var fontSize = Math.floor((pipWindow.innerHeight - 20)/2);
+        newNode.style.fontSize = (fontSize*1.2) + 'px';
+        
+        Array.from(newNode.children).forEach(element => {
+            element.classList.add('lyricInline');
+        });
+
+        newNode.style.lineHeight = Math.floor(pipWindow.innerHeight/2*1.2) + 'px';
+        pipWindow.document.body.appendChild(newNode);
+        pipWindow.document.body.style.height = pipWindow.innerHeight + 'px';
+        var br = document.createElement('br');
+        pipWindow.document.body.appendChild(br);
+        var newNode2 = node.parentNode.nextElementSibling.getElementsByTagName('span')[0].cloneNode(2);
+        if(newNode2 && newNode2.className == 'translateLyric'){
+            newNode2.style.fontSize = (fontSize*0.8) + 'px';
+            newNode2.style.lineHeight = Math.floor(pipWindow.innerHeight/2*0.8) + 'px';
+            pipWindow.document.body.appendChild(newNode2);
+        } else{
+            pipWindow.document.body.classList.add('current-line-xrc-' + PLAYER.lyricStyle);
+            pipWindow.document.body.innerHTML = '';
+            var fontSize = pipWindow.innerHeight - 20;
+            newNode.style.fontSize = fontSize + 'px';
+            
+            Array.from(newNode.children).forEach(element => {
+                element.classList.add('lyricInline');
+            });
+
+            newNode.style.lineHeight = pipWindow.innerHeight + 'px';
+            pipWindow.document.body.appendChild(newNode);
+            pipWindow.document.body.style.height = pipWindow.innerHeight + 'px';
+        }
+        
+    }
     
     var middleNode = pipWindow.document.getElementById('line-' + PLAYER.lastXrcLetterI + '-' + PLAYER.lastXrcLetterJ);
     var distance = middleNode.offsetLeft + pipWindowFillTextLength(middleNode.textContent) * fontSize - pipWindow.innerWidth/2;
     pipWindow.scrollTo({
-        left: distance
+        left: distance,
     });
 
     var name = PLAYER.audio_name[PLAYER.currentIndex+1];
@@ -620,16 +668,14 @@ async function pipWindowFillXrc(node) {
     pipWindow.document.body.title = name + ' - ' + artist + ' | XPlayer';
 }
 
-var keydownForPipWindow=0;
 document.addEventListener('keydown', function(e){
     if(e.key!='p')return;
     if('documentPictureInPicture' in window){
-        ++keydownForPipWindow;
-        if(keydownForPipWindow==2){
-            keydownForPipWindow=0;
+        if(pipWindowIsOpened){
+            pipWindowIsOpened = false;
             pipWindow.close();
         }else{
-            pipWindowCreate(300,20);
+            pipWindowCreate();
         }
     }else{
         console.error("pipWindow isn't supported.");
@@ -709,6 +755,7 @@ var Selected = function() {
     this.lastXrcLetterJ = null;
     //this.lyricTranslate is only for .xrc .
     this.lyricTranslate = null;
+    this.lastHasTwoLanguage = false;
     this.audio_name = [];
     this.audio_artist = [];
     this.audio_album = [];
@@ -983,7 +1030,18 @@ Selected.prototype = {
         var lyric = await this.getLyricFetch(url + '.xrc');
         if(lyric != null){
             this.lyricMode = "xrc";
-            this.lyricTranslate = await this.getLyricFetch(url + '_ts.xrc');
+            try{
+                this.lyricTranslate = await this.getLyricFetch(url + '_ts.xrc');
+            }catch{
+                // if(this.lastHasTwoLanguage == true){
+                    // pipWindowCreate();
+                // }
+            }
+            // if(this.lyricTranslate){
+            //     if(this.lastHasTwoLanguage == false){
+                    // pipWindowCreate();
+            //     }
+            // }
         }else{
             this.lyricMode = "lrc";
             lyric = await this.getLyricFetch(url + '.lrc');
@@ -1199,6 +1257,7 @@ Selected.prototype = {
                     var line = document.createElement('span');
                     line.textContent = lyricTranslate[pointer++][1];
 
+                    line.classList.add('translateLyric');
                     line.setAttribute('start-time',lyric[i][0][1]);
 
                     line.addEventListener("click", function(){
@@ -1383,6 +1442,12 @@ Selected.prototype = {
         }
     },
     ending: function() {
+
+        if(this.lyricTranslate){
+            this.lastHasTwoLanguage = true;
+        } else {
+            this.lastHasTwoLanguage = false;
+        }
 
         this.audio.currentTime = 0;
 
