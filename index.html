@@ -20,10 +20,10 @@
         <link rel="preload" href="fonts/youyuan.woff2" as="font" type="font/woff2" crossorigin>
         <link rel="preload" href="fonts/fangzhengshuti.woff2" as="font" type="font/woff2" crossorigin>
         <!-- preload json -->
-        <link rel="preload" href="json/content.json" type="text/json" crossorigin>
+        <link rel="preload" href="json/content.json" as="js" type="text/json" crossorigin>
         <!-- preload js -->
-        <link rel="preload" href="js/player.min.js" type="text/js">
-        <link rel="preload" href="js/jquery.min.js" type="text/js">
+        <link rel="preload" href="js/player.min.js" as="js" type="text/js">
+        <link rel="preload" href="js/jquery.min.js" as="js" type="text/js">
         <link rel="preload" href="css/pipWindow.min.css" as="stylesheet" type="text/stylesheet">
         <!-- preload css -->
         <!-- <link rel="preload" href=""> -->
@@ -110,11 +110,11 @@
                 <span class="menu-title" onclick="hide_font()">切歌顺序</span>
                 <div class="menu-content">
                     <p>
-                    <span id="menu_order" onmouseover="menu_color_change(this,1)" onmouseout="menu_color_change(this,2)" onclick="playmode_change('order')">顺序播放</span>
-                    <span id="menu_reverse" onmouseover="menu_color_change(this,1)" onmouseout="menu_color_change(this,2)" onclick="playmode_change('reverse')">倒序播放</span>
+                    <span id="menu_order" class="menu_button" onclick="playmode_change('order')">顺序播放</span>
+                    <span id="menu_reverse" class="menu_button" onclick="playmode_change('reverse')">倒序播放</span>
                     <br>
-                    <span id="menu_random" onmouseover="menu_color_change(this,1)" onmouseout="menu_color_change(this,2)" onclick="playmode_change('random')">随机播放</span>
-                    <span id="menu_loop" onmouseover="menu_color_change(this,1)" onmouseout="menu_color_change(this,2)" onclick="playmode_change('loop')">单曲循环</span>
+                    <span id="menu_random" class="menu_button" onclick="playmode_change('random')">随机播放</span>
+                    <span id="menu_loop" class="menu_button" onclick="playmode_change('loop')">单曲循环</span>
                     </p>
                 </div>
             </div>
@@ -123,13 +123,13 @@
                 <br>
                 <span class="menu-content">
                     <p>
-                    <span id="menu_font_fordefault" onmouseover="menu_color_change(this,1)" onmouseout="menu_color_change(this,2)" onclick="font_change('fordefault')">默认</span>
-                    <span id="menu_font_fangzhengshuti" onmouseover="menu_color_change(this,1)" onmouseout="menu_color_change(this,2)" onclick="font_change('fangzhengshuti')">方正舒体</span>
-                    <span id="menu_font_kaiti" onmouseover="menu_color_change(this,1)" onmouseout="menu_color_change(this,2)" onclick="font_change('kaiti')">楷体</span>
+                    <span id="menu_font_fordefault" class="menu_button" onclick="font_change('fordefault')">默认</span>
+                    <span id="menu_font_fangzhengshuti" class="menu_button" onclick="font_change('fangzhengshuti')">方正舒体</span>
+                    <span id="menu_font_kaiti" class="menu_button" onclick="font_change('kaiti')">楷体</span>
                     <br>
-                    <span id="menu_font_songti" onmouseover="menu_color_change(this,1)" onmouseout="menu_color_change(this,2)" onclick="font_change('songti')">宋体</span>
-                    <span id="menu_font_huawenxingkai" onmouseover="menu_color_change(this,1)" onmouseout="menu_color_change(this,2)" onclick="font_change('huawenxingkai')">华文行楷</span>
-                    <span id="menu_font_youyuan" onmouseover="menu_color_change(this,1)" onmouseout="menu_color_change(this,2)" onclick="font_change('youyuan')">幼圆</span>
+                    <span id="menu_font_songti" class="menu_button" onclick="font_change('songti')">宋体</span>
+                    <span id="menu_font_huawenxingkai" class="menu_button" onclick="font_change('huawenxingkai')">华文行楷</span>
+                    <span id="menu_font_youyuan" class="menu_button" onclick="font_change('youyuan')">幼圆</span>
                     </p>
                 </span>
             </div>

@@ -429,6 +429,11 @@ a:hover {
     transition: 0s
 }
 
+.menu_button:hover {
+    cursor: pointer;
+    color: #fff;
+}
+
 /* for menu */
 .menu-item {
     margin-bottom: 10px;

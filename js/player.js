@@ -405,13 +405,6 @@ $(document).ready(function() {
     });
 });
 
-function menu_color_change(that,mode){
-    if(mode == 2)that.style.color = "#999";
-    else that.style.color = "#fff";
-    if(localStorage.getItem("player_mode") == that.id.substring(5))that.style.color = "#fff";
-    if(localStorage.getItem("player_font") == that.id.substring(10))that.style.color = "#fff";
-}
-
 //to change the opacity when mouse across the player
 function player_opacity(mode){
     var player=document.getElementById("player");
