@@ -357,7 +357,7 @@ async function searchSongs(query) {
     const songs = searchData;
     const queryLowerCase = query.toLowerCase();
     const filteredSongs = songs.filter(song => 
-        song.song_name.toLowerCase().includes(queryLowerCase) || song.artist.toLowerCase().includes(queryLowerCase) || song.lrc_name.toLowerCase().includes(queryLowerCase)
+        song.song_name.toLowerCase().includes(queryLowerCase) || song.artist.toLowerCase().includes(queryLowerCase) || song.lrc_name.toLowerCase().includes(queryLowerCase) || song.album.toLowerCase().includes(queryLowerCase)
     );
 
     searchResults.innerHTML = filteredSongs.map(song => 
