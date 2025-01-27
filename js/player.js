@@ -1364,6 +1364,11 @@ Selected.prototype = {
                         }
                         this.last = i;
                     }
+                    if(currentTime < lyricInline[0][1]){
+                        this.mediaSessionAPI(sessionStorage.getItem("audio_name"),' ');
+                    }else{
+                        this.mediaSessionAPI(sessionStorage.getItem("audio_name"),line.getAttribute("word"));
+                    }
                     
                     for(var j = 0 ; j < lyricInline.length ; j++){
 
@@ -1374,11 +1379,8 @@ Selected.prototype = {
                             letter.classList.remove('current-line-xrc-playing-' + this.lyricStyle);
                         } else {
                             if(currentTime < lyricInline[j][1]){
-                                this.mediaSessionAPI(sessionStorage.getItem("audio_name"),' ');
                                 break;
                             }
-
-                            this.mediaSessionAPI(sessionStorage.getItem("audio_name"),line.getAttribute("word"));
 
                             letter.classList.add('current-line-xrc-playing-' + this.lyricStyle);
 
