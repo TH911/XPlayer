@@ -330,8 +330,8 @@ const searchBox = document.getElementById('search-box');
 const searchResults = document.getElementById('search-results');
 async function loadData() {
     try {
-        const response = await fetch('json/content.json');
-        const data = await response.json();
+        const response = await loadJson();
+        const data = await JSON.parse(response);
         return data.data;
     } catch (error) {
         console.error('failed to loading the search box of songs:', error);
@@ -734,6 +734,27 @@ setInterval(function(){
     }
 },100);
 
+async function FetchJson() {
+    console.log("fetch content.json.");
+    var response = await fetch('json/content.json');
+    var json = await response.json();
+    var text = JSON.stringify(json);
+    localStorage.setItem("content.json",text);
+}
+
+async function loadJson(){
+    var counterForContent = sessionStorage.getItem("counterForContent");
+    if(localStorage.getItem("content.json")){
+        if(counterForContent == null){
+            sessionStorage.setItem("counterForContent",1);
+            FetchJson();
+        }
+    }else if(counterForContent == null){
+        await FetchJson();
+    }
+    return localStorage.getItem("content.json");
+}
+
 var Selected = function() {
     this.audio = document.getElementById('audio');
     this.lyricContainer = document.getElementById('lyricContainer');
@@ -758,10 +779,10 @@ var Selected = function() {
 
 Selected.prototype = {
     constructor: Selected, //fix the prototype chain
-    init: function() {
+    init: async function() {
         
         //get all songs and add to the playlist
-        this.initialList(this);
+        await this.initialList(this);
 
         var that = this,
             allSongs = this.playlist.children[0].children,
@@ -893,36 +914,31 @@ Selected.prototype = {
 
         this.play(randomSong);
     },
-    initialList: function(ctx) {
+    initialList: async function(ctx) {
         var that = this;
 
-        var xhttp = new XMLHttpRequest();
-        xhttp.open('GET', 'json/content.json', false);
-        xhttp.onreadystatechange = function() {
-            if (xhttp.status == 200 && xhttp.readyState == 4) {
-                var fragment = document.createDocumentFragment(),
-                    data = JSON.parse(xhttp.responseText).data,
-                    ol = ctx.playlist.getElementsByTagName('ol')[0],
-                    fragment = document.createDocumentFragment();
+        var response = await loadJson();
 
-                data.forEach(function(v, i, a) {
-                    var li = document.createElement('li'),
-                        a = document.createElement('a');
-                    a.href = 'javascript:void(0)';
-                    a.dataset.name = v.lrc_name;
-                    a.textContent = v.song_name + ' - ' + v.artist;
-                    that.audio_name[v.lrc_name] = v.song_name;
-                    that.audio_artist[v.lrc_name] = v.artist;
-                    that.audio_album[v.lrc_name] = v.album;
-                    that.audio_duration[v.lrc_name] = v.duration;
-                    li.appendChild(a);
-                    li.id = "playlist-" + i;
-                    fragment.appendChild(li);
-                });
-                ol.appendChild(fragment);
-            }
-        };
-        xhttp.send();
+        var fragment = document.createDocumentFragment(),
+        data = JSON.parse(response).data,
+        ol = ctx.playlist.getElementsByTagName('ol')[0],
+        fragment = document.createDocumentFragment();
+
+        data.forEach(function(v, i, a) {
+            var li = document.createElement('li'),
+                a = document.createElement('a');
+            a.href = 'javascript:void(0)';
+            a.dataset.name = v.lrc_name;
+            a.textContent = v.song_name + ' - ' + v.artist;
+            that.audio_name[v.lrc_name] = v.song_name;
+            that.audio_artist[v.lrc_name] = v.artist;
+            that.audio_album[v.lrc_name] = v.album;
+            that.audio_duration[v.lrc_name] = v.duration;
+            li.appendChild(a);
+            li.id = "playlist-" + i;
+            fragment.appendChild(li);
+        });
+        ol.appendChild(fragment);
     },
     mediaSessionAPI(name,lyric){
         var that = this;
@@ -986,8 +1002,8 @@ Selected.prototype = {
         var playlist_height = playlist.style.height.split('px')[0];
         playlist_ol.scrollTop = Math.max(0,now.offsetTop - Math.floor(parseInt(playlist_height)/2));
 
-        songinfo_audio.textContent = this.playlist.getElementsByTagName("li")[songName-1].textContent;
-        document.title = songinfo_audio.textContent + " | XPlayer";
+        document.getElementById("songinfo_audio").textContent = this.playlist.getElementsByTagName("li")[songName-1].textContent;
+        document.title = document.getElementById("songinfo_audio").textContent + " | XPlayer";
 
         document.getElementById("cover_img").src = "./music/" + songName + '.webp';
 
@@ -1023,18 +1039,7 @@ Selected.prototype = {
         var lyric = await this.getLyricFetch(url + '.xrc');
         if(lyric != null){
             this.lyricMode = "xrc";
-            try{
-                this.lyricTranslate = await this.getLyricFetch(url + '_ts.xrc');
-            }catch{
-                // if(this.lastHasTwoLanguage == true){
-                    // pipWindowCreate();
-                // }
-            }
-            // if(this.lyricTranslate){
-            //     if(this.lastHasTwoLanguage == false){
-                    // pipWindowCreate();
-            //     }
-            // }
+            this.lyricTranslate = await this.getLyricFetch(url + '_ts.xrc');
         }else{
             this.lyricMode = "lrc";
             lyric = await this.getLyricFetch(url + '.lrc');
@@ -1352,8 +1357,6 @@ Selected.prototype = {
 
                     line.classList.add('current-line');
 
-                    this.mediaSessionAPI(sessionStorage.getItem("audio_name"),line.getAttribute("word"));
-
                     // scroll
                     if(i != this.last){
                         if(mouseState == 'up'){
@@ -1370,7 +1373,12 @@ Selected.prototype = {
                             letter.classList.add('current-line-xrc-played-' + this.lyricStyle);
                             letter.classList.remove('current-line-xrc-playing-' + this.lyricStyle);
                         } else {
-                            if(currentTime < lyricInline[j][1]) break;
+                            if(currentTime < lyricInline[j][1]){
+                                this.mediaSessionAPI(sessionStorage.getItem("audio_name"),' ');
+                                break;
+                            }
+
+                            this.mediaSessionAPI(sessionStorage.getItem("audio_name"),line.getAttribute("word"));
 
                             letter.classList.add('current-line-xrc-playing-' + this.lyricStyle);
 
