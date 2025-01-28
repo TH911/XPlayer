@@ -31,7 +31,7 @@
         <!-- PWA -->
         <!-- <link rel="manifest" href="json/manifest.json"> -->
 
-        <link rel="stylesheet" href="css/player.min.css">
+        <link rel="stylesheet" href="css/player.css">
     </head>
     <body>
         <!-- https://eruda.liriliri.io/docs/#install -->
@@ -47,11 +47,8 @@
         <!-- jQuery -->
         <script src="js/jquery.min.js"></script>
 
-        <header id="header">
-            <h3> <a href="https://th911.us.kg/2024/11/09/2/" target="_blank">XPlayer | 音乐电台</a></h3>
-        </header>
         <div class="wrapper">
-            <button id="button_search-container" onclick="search_hide()">搜索歌曲</button>
+            <button id="button_search-container" class="mobileButton" onclick="search_hide()">搜索歌曲</button>
             <div id="search-container">
                 <input type="text" id="search-box" placeholder="搜索歌曲..." autocomplete="off">
                 <ul id="search-results"></ul>
@@ -67,7 +64,7 @@
             <div id = "spectrum">
                 <canvas id="spectrum-cvs"></canvas>
             </div>
-            <div onmouseover = "player_opacity(0)" onmouseout="player_opacity(1)" id="player">
+            <div id="player">
                 <!-- instead of the default player because of the difference between the different browser -->
                 <div class="audio-wrapper">
                     <audio autoplay="autoplay" preload="auto" id="audio" crossorigin="anonymous">歌曲加载失败，请检查网络连接或缓存。</audio>
@@ -88,7 +85,7 @@
                 </div>
             </div>
             <div id="playlist_with_button">
-                <button id="playlist_button" onclick="playlist_hide()">播放列表</button>
+                <button id="playlist_button" class="mobileButton" onclick="playlist_hide()">播放列表</button>
                 <br>
                 <div id="playlist">
                     <ol id="playlist_ol">
@@ -135,6 +132,6 @@
             </div>
         </div>
 
-        <script src="js/player.min.js"></script>
+        <script src="js/player.js"></script>
     </body>
 </html>
