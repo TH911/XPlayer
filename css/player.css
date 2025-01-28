@@ -280,6 +280,7 @@ a:hover {
     }
     #controls {
         position: relative;
+        height: 77px;
     }
     .mobileButton {
         display: none !important;
