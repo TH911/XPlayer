@@ -374,7 +374,7 @@ function hide_playmode(){
 
 var pipWindow,pipWindowIsOpened = false;
 async function pipWindowCreate() {
-    var pipWindowHeight = 52;h
+    var pipWindowHeight = 52;
     pipWindow = await window.documentPictureInPicture.requestWindow({
         width: 350,
         height: pipWindowHeight
