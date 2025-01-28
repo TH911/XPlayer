@@ -144,7 +144,7 @@ a:hover {
 @media screen and (max-width: 768px) {
     #lyricWrapper {
         /* for test */
-        background: #1493dd;
+        /* background: #1493dd; */
         width: 90% !important;
     }
     #spectrum {
@@ -272,7 +272,7 @@ a:hover {
 @media screen and (min-width: 768px) {
     #lyricWrapper {
         /* for test */
-        background-color: #A6E22D;
+        /* background-color: #A6E22D; */
         width: 50%;
     }
     #spectrum {
