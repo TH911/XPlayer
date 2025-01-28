@@ -946,13 +946,16 @@ Selected.prototype = {
     },
     getLyricFetch: async function(url) {
         var answer;
-        const response = await fetch(url);
-        if(response.ok == false){
-            return null;
-        } else {
-            answer = await response.text();
-            return answer;
-        }
+        try{
+            const response = await fetch(url);
+            if(response.ok == false){
+                answer = null;
+            } else {
+                answer = await response.text();
+            }
+        }catch{
+
+        }return answer;
     },
     getLyric: async function(url) {
         this.lyricContainer.textContent = 'loading lyric...';
