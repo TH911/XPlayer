@@ -793,6 +793,13 @@ Selected.prototype = {
             that.syncLyric();
         });
 
+        // hack iOS which can't end.
+        this.audio.addEventListener("timeupdate",function(){
+            if(this.currentTime > that.duration){
+                that.ending();
+            }
+        });
+
         // pause the animation of lyric if audio has paused and it's xrc.
         this.audio.addEventListener("pause", function(){
             try{
