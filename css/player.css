@@ -75,18 +75,6 @@ a:hover {
     position: absolute;
     left: 0;
     z-index: 9999;
-    background-color:#32323280;
-}
-#songimg {
-    text-align: center;
-    margin: auto;
-    padding: 70px 70px 70px 70px;
-    display: block;
-    position: fixed;
-    width: 100px;
-    height: auto;
-    right: 0;
-    z-index: 999;
 }
 #cover_img{
     border: 5px solid #000;
@@ -110,7 +98,7 @@ a:hover {
     background-color: #272822;
 }
 #playlist ol {
-    height: 480px;
+    /* height: 480px; */
     overflow: auto;
     margin: 0;
 }
@@ -152,6 +140,209 @@ a:hover {
     url("../fonts/fangzhengshuti.ttf") format('ttf');
 }
 
+/* mobile */
+@media screen and (max-width: 768px) {
+    #lyricWrapper {
+        /* for test */
+        background: #1493dd;
+        width: 90% !important;
+    }
+    #spectrum {
+        width: 90%;
+    }
+    #controls {
+        position: fixed;
+        top: 0;
+    }
+    .mobileButton {
+        display: block !important;
+        width: 40vw;
+    }
+    #button_search-container{
+        text-align: center;
+        max-height: 30px;
+        max-width: 200px;
+        height: 30px;
+        font-size: 18px;
+        padding: 0px 20px 18px 20px;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 31px;
+        z-index: 9999;
+        background-color: #fff;
+        color: #000;
+        border-radius: 5px;
+        border: 2px solid #000;
+        
+        -webkit-transition-duration: 0.8s; /* Safari */
+        transition-duration: 0.8s;
+        text-decoration: none;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    
+    #button_search-container:after {
+        content: "";
+        background: #1493dd;
+        display: block;
+        position: relative;
+        padding-top: 300%;
+        padding-left: 350%;
+        margin-left: -20px!important;
+        margin-top: -120%;
+        opacity: 0;
+        transition: all 0.8s
+    }
+    
+    #button_search-container:active:after {
+        padding: 0;
+        margin: 0;
+        opacity: 1;
+        transition: 0s
+    }
+    #playlist_button {
+        text-align: center;
+        max-height: 30px;
+        max-width: 200px;
+        height: 30px;
+        font-size: 18px;
+        padding: 0px 20px 18px 20px;
+        position: fixed;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        background-color: #fff;
+        color: #000;
+        border-radius: 5px;
+        border: 2px solid #000;
+        
+        -webkit-transition-duration: 0.8s; /* Safari */
+        transition-duration: 0.8s;
+        text-decoration: none;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    
+    #playlist_button:after {
+        content: "";
+        background: #1493dd;
+        display: block;
+        position: relative;
+        padding-top: 300%;
+        padding-left: 350%;
+        margin-left: -20px!important;
+        margin-top: -120%;
+        opacity: 0;
+        transition: all 0.8s
+    }
+    
+    #playlist_button:active:after {
+        padding: 0;
+        margin: 0;
+        opacity: 1;
+        transition: 0s
+    }
+    #songimg {
+        display: none;
+    }
+    #playlist {
+        width: 80vw;
+        height: calc(100vh - 140px);
+        background-color: #1b2426;
+        display: none;
+    }
+    #playlist ol {
+        height: calc(100% - 16px);
+    }
+    #player {
+        width: 90vw;
+        opacity: 1;
+        bottom: 0;
+    }
+    #search-container {
+        width: 80vw;
+        left: 0;
+        right: auto;
+        top: 60px;
+        display: none;
+    }
+}
+/* PC */
+@media screen and (min-width: 768px) {
+    #lyricWrapper {
+        /* for test */
+        background-color: #A6E22D;
+        width: 50%;
+    }
+    #spectrum {
+        width: 50%;
+    }
+    #controls {
+        position: relative;
+    }
+    .mobileButton {
+        display: none !important;
+    }
+    #songimg {
+        text-align: center;
+        margin: auto;
+        padding: 70px 70px 70px 70px;
+        display: block;
+        position: fixed;
+        width: 24vw;
+        height: 24vw;
+        right: 0;
+        z-index: 999;
+        top: calc((90vh - 24vw) / 2);
+    }
+    #playlist {
+        background: #32323280;
+        width: 24vw;
+        height: 90vh;
+        display: block !important;
+        /* overflow: auto; */
+    }
+    #playlist ol{
+        height: calc(100% - 16px);
+    }
+    #player {
+        width: 50vw;
+        bottom: 5px;
+        opacity: 0.6;
+        transition: opacity 100ms linear;
+    }
+    #player:hover {
+        opacity: 1;
+    }
+    #search-container {
+        display: block !important;
+        width: 24vw;
+        left: auto;
+        right: 20px;
+        top: 20px;
+    }
+    #songinfo_name {
+        font-size: calc(24vw / 15) !important;
+    }
+    #songinfo_artist {
+        font-size: calc(24vw / 20) !important;
+    }
+    #songinfo_album {
+        font-size: calc(24vw / 20) !important;
+    }
+}
+#search-container {
+    position: fixed;
+    z-index: 1000;
+}
+
+#controls {
+    z-index: 999;
+    overflow: hidden;
+    right: 0;
+}
+
 #lyricWrapper {
     left: 0;
     right: 0;
@@ -161,11 +352,11 @@ a:hover {
     position: relative;
     margin-top: 20px;
     color: #fff;
+    height: calc(100vh - 130px);
 }
 
 /*hide scrollbar of lyricWrapper*/
-#lyricWrapper::-webkit-scrollbar
-{
+#lyricWrapper::-webkit-scrollbar {
     display: none;
 }
 
@@ -363,70 +554,22 @@ a:hover {
 }
 
 /*custom scrollbar for webkit browsers*/
-#playlist ol::-webkit-scrollbar-track
-{
+#playlist ol::-webkit-scrollbar-track {
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 	border-radius: 15px;
 	background-color: #F5F5F5;
 }
 
-#playlist ol::-webkit-scrollbar
-{
+#playlist ol::-webkit-scrollbar {
 	width: 5px;
     border-radius: 15px;
 	background-color: #F5F5F5;
 }
 
-#playlist ol::-webkit-scrollbar-thumb
-{
+#playlist ol::-webkit-scrollbar-thumb {
 	border-radius: 15px;
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
 	background-color: #BCBCBC;
-}
-
-/* for mobile */
-#playlist_button{
-    display:none;
-    text-align: center;
-    max-height: 30px;
-    max-width: 200px;
-    height: 30px;
-    font-size: 18px;
-    padding: 0px 20px 18px 20px;
-    position: fixed;
-    left: 0;
-    right: 0;
-    z-index: 9999;
-    background-color: #fff;
-    color: #000;
-    border-radius: 5px;
-    border: 2px solid #000;
-    
-    -webkit-transition-duration: 0.8s; /* Safari */
-    transition-duration: 0.8s;
-    text-decoration: none;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-#playlist_button:after {
-    content: "";
-    background: #1493dd;
-    display: block;
-    position: relative;
-    padding-top: 300%;
-    padding-left: 350%;
-    margin-left: -20px!important;
-    margin-top: -120%;
-    opacity: 0;
-    transition: all 0.8s
-}
-
-#playlist_button:active:after {
-    padding: 0;
-    margin: 0;
-    opacity: 1;
-    transition: 0s
 }
 
 .menu_button:hover {
@@ -453,14 +596,6 @@ a:hover {
     100% { opacity: 1; }
 }
 
-#controls {
-    position: relative;
-    z-index: 999;
-    overflow: hidden;
-    right: 0;
-    height: 77px;
-}
-
 #menu-playmode {
     text-align: right;
     position: relative;
@@ -480,14 +615,6 @@ a:hover {
 
 .menu-title {
     width: auto;
-}
-
-#search-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 250px;
-    z-index: 1000;
 }
 
 #search-box {
@@ -554,52 +681,6 @@ a:hover {
 #search-results li span {
     margin-left: 1em;
     /* text-align: center; */
-}
-
-/* for mobile */
-#button_search-container{
-    display:none;
-    text-align: center;
-    max-height: 30px;
-    max-width: 200px;
-    height: 30px;
-    font-size: 18px;
-    padding: 0px 20px 18px 20px;
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 31px;
-    z-index: 9999;
-    background-color: #fff;
-    color: #000;
-    border-radius: 5px;
-    border: 2px solid #000;
-	
-    -webkit-transition-duration: 0.8s; /* Safari */
-    transition-duration: 0.8s;
-    text-decoration: none;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-#button_search-container:after {
-    content: "";
-    background: #1493dd;
-    display: block;
-    position: relative;
-    padding-top: 300%;
-    padding-left: 350%;
-    margin-left: -20px!important;
-    margin-top: -120%;
-    opacity: 0;
-    transition: all 0.8s
-}
-
-#button_search-container:active:after {
-    padding: 0;
-    margin: 0;
-    opacity: 1;
-    transition: 0s
 }
 
 #spectrum {
