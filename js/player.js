@@ -11,94 +11,20 @@
 function responsiveDesign(flag_playlist){
     var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     var screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-    var playlist_button=document.getElementById("playlist_button");
-    var songimg = document.getElementById("songimg");
-    var audio_player = document.getElementById("player");
-    var playlist_ol = document.getElementById("playlist_ol");
     var playlist=document.getElementById("playlist");
-    var header = document.getElementById("header");
-    var lyricWrapper = document.getElementById("lyricWrapper");
-    lyricWrapper.style.height = (screenHeight - 130) + 'px';
-    var controls = document.getElementById("controls");
     var search_container = document.getElementById("search-container");
-    var spectrum = document.getElementById("spectrum");
 
     // for mobile
     if(screenWidth<screenHeight||screenWidth<800){
-        //hide "controls"
-        // controls.style.display = "none";
-        controls.style.position = "fixed";
-        controls.style.top = "0px";
-        controls.style.height = "200px";
-
-        header.style.display = "none";
-        playlist_button.style.display = "block";
-        playlist_button.style.width = Math.floor(screenWidth*0.4) + 'px';
-        // hide the cover of the song(and the info) if the width of the screen is too small
-        songimg.style.display = "none";
         
         //close the playlist for default
         if(flag_playlist)playlist.style.display = "none";
-        //the height of the playlist
-        
-        playlist.style.width = Math.floor(screenWidth*0.8)+'px';
-        playlist.style.height = (screenHeight - 140) + 'px';
-        playlist_ol.style.height = playlist.style.height;
-        playlist.style.backgroundColor = "#1b2426";
-
-        //for the player
-        audio_player.style.width = Math.floor(screenWidth*0.9) +'px';
-        audio_player.style.opacity = 1;
-        audio_player.style.bottom = '0px';
 
         search_container.style.display = "none";
-        search_container.style.width = playlist.style.width;
-        search_container.style.right = "auto";
-        search_container.style.left = 0;
-        search_container.style.top = "60px";
-        if(playlist.style.display != "block") document.getElementById("button_search-container").style.display = "block";
-        document.getElementById("button_search-container").style.width = playlist_button.style.width;
 
-        lyricWrapper.style.width = "90%";
     }else{
-        controls.style.position = "relative";
-        controls.style.height = "77px";
 
-        header.style.display = "block";
-        songimg.style.display = "block";
-        playlist.style.display = "block";
-        playlist_button.style.display = "none";
-
-        playlist.style.height = (screenHeight - 80) + 'px';
-        playlist.style.width = Math.floor(screenWidth*0.24) + 'px';
-        playlist.style.backgroundColor = "#32323280";
-        playlist_ol.style.height = playlist.style.height;
-        audio_player.style.width = Math.floor(screenWidth*0.5) +'px';
-        songimg.style.width = playlist.style.width;
-
-        audio_player.style.bottom = '5px';
-        audio_player.style.opacity = 0.6;
-
-        var songinfo_name = document.getElementById("songinfo_name");
-        songinfo_name.style.fontSize = Math.floor(Math.floor(screenWidth*0.24)/15) + 'px';
-        var songinfo_artist = document.getElementById("songinfo_artist");
-        songinfo_artist.style.fontSize = Math.floor(Math.floor(screenWidth*0.24)/20) + 'px';
-        var songinfo_album = document.getElementById("songinfo_album");
-        songinfo_album.style.fontSize = Math.floor(Math.floor(screenWidth*0.24)/20) + 'px';
-
-        songimg.style.top = Math.floor((screenHeight - Math.floor(screenWidth*0.24) - Math.floor(Math.floor(screenWidth*0.24)/15) - Math.floor(Math.floor(screenWidth*0.24)/20) - Math.floor(Math.floor(screenWidth*0.24)/20))/2) + 'px';
-        
-        search_container.style.display = "block";
-        search_container.style.width = playlist.style.width;
-        search_container.style.left = "auto";
-        search_container.style.right = "20px";
-        search_container.style.top = "20px";
-
-        document.getElementById("button_search-container").style.display = "none";
-
-        lyricWrapper.style.width = "50%";
     }
-    spectrum.style.width = lyricWrapper.style.width;
 }
 responsiveDesign(true);
 window.addEventListener('resize', function(){
@@ -405,13 +331,6 @@ $(document).ready(function() {
     });
 });
 
-//to change the opacity when mouse across the player
-function player_opacity(mode){
-    var player=document.getElementById("player");
-    if(mode==1)player.style.opacity=0.6;
-    else player.style.opacity=1;
-}
-
 //change the playermode
 function playmode_change(mode){
     var mode2=localStorage.getItem("player_mode");
@@ -694,6 +613,7 @@ window.onload = function() {
     PLAYER = new Selected();
     PLAYER.init();
 };
+
 var mouseState = 'up',mouseStateTime = 0,mouseTouchStart = false;
 var mouseInLyricContainer = false;
 document.addEventListener('touchstart', function(){
@@ -714,20 +634,12 @@ document.addEventListener('touchend', function(){
     mouseState = 'up';
     mouseTouchStart = false;
 });
-document.getElementById('lyricContainer').addEventListener('mouseenter',function(){
-    mouseInLyricContainer = true;
-});
-document.getElementById('lyricContainer').addEventListener('mouseleave', function(){
-    mouseInLyricContainer = false;
-});
-document.addEventListener('wheel', function(){
-    if(mouseInLyricContainer){
-        mouseStateTime = new Date().getTime();
-        mouseState = 'wheel';
-    }
+document.getElementById('lyricWrapper').addEventListener('scroll',function(){
+    mouseStateTime = new Date().getTime();
+    mouseState = 'scroll';
 });
 setInterval(function(){
-    if(mouseState == 'wheel' && new Date().getTime() - mouseStateTime > 1500) {
+    if(mouseState == 'scroll' && new Date().getTime() - mouseStateTime > 1500) {
         if(!mouseTouchStart) {
             mouseState = 'up';
         }
@@ -782,7 +694,7 @@ Selected.prototype = {
     init: async function() {
         
         //get all songs and add to the playlist
-        await this.initialList(this);
+        await this.initialList();
 
         var that = this,
             allSongs = this.playlist.children[0].children,
@@ -817,7 +729,7 @@ Selected.prototype = {
 
         //handle playlist
         this.playlist.addEventListener('click', function(e) {
-            if (e.target.nodeName.toLowerCase() !== 'a') {
+            if (e.target.nodeName.toLowerCase() != 'a') {
                 return;
             };
             var allSongs = that.playlist.children[0].children,
@@ -912,16 +824,18 @@ Selected.prototype = {
             }
         });
 
+        console.log("inited.It's time to play the song now.");
+
         this.play(randomSong);
     },
-    initialList: async function(ctx) {
+    initialList: async function() {
         var that = this;
 
         var response = await loadJson();
 
         var fragment = document.createDocumentFragment(),
         data = JSON.parse(response).data,
-        ol = ctx.playlist.getElementsByTagName('ol')[0],
+        ol = this.playlist.getElementsByTagName('ol')[0],
         fragment = document.createDocumentFragment();
 
         data.forEach(function(v, i, a) {
