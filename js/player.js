@@ -374,13 +374,7 @@ function hide_playmode(){
 
 var pipWindow,pipWindowIsOpened = false;
 async function pipWindowCreate() {
-    var pipWindowHeight = 52;
-    // if(PLAYER.lyricTranslate != null){
-    //     pipWindowHeight *=2;
-    // }
-    // if(pipWindowIsOpened && pipWindowHeight == pipWindow.innerHeight){
-    //     return;
-    // }
+    var pipWindowHeight = 52;h
     pipWindow = await window.documentPictureInPicture.requestWindow({
         width: 350,
         height: pipWindowHeight
@@ -904,6 +898,7 @@ Selected.prototype = {
 
         this.lyricContainer.textContent = 'loading song...';
         this.audio.src = './music/' + songName + '.mp3';
+        console.log("change the src.");
         this.audio.currentTime = 0;
 
         //first play,second load lyric
