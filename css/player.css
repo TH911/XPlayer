@@ -3,6 +3,18 @@
     -webkit-transition: 0.2s ease-in-out;
     -moz-transition: 0.2s ease-in-out;
 }
+/* Prevent image material from being dragged or selected */
+img {
+    -webkit-user-drag: none;
+    -moz-user-drag: none;
+    -ms-user-drag: none;
+    user-drag: none;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 ::selection {
     background: green;
     color: #fff;
@@ -86,17 +98,17 @@ a:hover {
     }
 }
 #cover_img {
-    border: 7px solid #000;
-    height: 70%;
-    width: 70%;
+    border: 3px solid #000;
+    height: auto;
+    width: 60%;
 }
-#cover_img.rotate, #cover_center.rotate {
+#cover_img.rotate, #cover_disc.rotate, #cover_disc_img.rotate {
     border-radius: 100%;
     transition: border-radius 200ms linear;
-    animation: rotate360 12s linear infinite;
+    animation: rotate360 8s linear infinite;
     animation-play-state: running;
 }
-#cover_img.paused, #cover_center.paused {
+#cover_img.paused, #cover_disc.paused, #cover_disc_img.paused {
     animation-play-state: paused !important;
 }
 #disapointer {
@@ -105,23 +117,43 @@ a:hover {
 #disapointer.playing {
     display: block;
     position: absolute;
-    top: 0;
-    right: 15%;
-    height: 40%;
+    top: -20%;
+    right: 10%;
+    height: 90%;
     width: auto;
-    transition: transform 800ms linear;
-    transform-origin: 66.6666667% 22.66666667%;
-    transform: rotate(-50deg);
+    transition: transform 600ms linear;
+    transform-origin: 85.7142857% 8.9108910%;
+    /* transform-origin: calc(108 / 126) calc(18 / 202); */
+    transform: rotate(-40deg);
 }
 #disapointer.rotate {
     transform: rotate(-20deg) !important;
 }
-#cover_center {
+#cover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+#cover_disc {
     position: absolute;
-    height: 15%;
-    width: auto;
-    right: 42.5%;
-    top: 32.5%;
+    height: auto;
+    width: 85%;
+    opacity: 0.3;
+}
+#cover_disc_img {
+    position: absolute;
+    height: auto;
+    width: 85%;
+    filter: blur(4px);
+    opacity: 0.7;
+}
+#disc_background {
+    position: absolute;
+    height: auto;
+    width: 85%;
+    filter: blur(10px);
+    opacity: 0.5;
 }
 
 .info a {
@@ -374,6 +406,10 @@ a:hover {
     }
     #songinfo_album {
         font-size: calc(24vw / 20) !important;
+    }
+    #songinfo {
+        top: 15%;
+        width: 70%;
     }
 }
 #search-container {

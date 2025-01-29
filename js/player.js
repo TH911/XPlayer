@@ -663,6 +663,43 @@ async function loadJson(){
     return localStorage.getItem("content.json");
 }
 
+function mainRGB(img) {
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+
+    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    var data = imageData.data;
+    var colors = {};
+    var numPixels = 0;
+
+    // RGB sum
+    for (var i = 0; i < data.length; i += 4) {
+        var r = data[i];
+        var g = data[i + 1];
+        var b = data[i + 2];
+        var key = r + ',' + g + ',' + b;
+        if (!colors[key]) {
+            colors[key] = {count: 0, color: key};
+        }
+        colors[key].count++;
+        numPixels++;
+    }
+
+    // find which color appear counts max
+    var maxColorKey = '';
+    var maxCount = 0;
+    for (var key in colors) {
+        if (colors[key].count > maxCount) {
+            maxCount = colors[key].count;
+            maxColorKey = colors[key].color;
+        }
+    }
+    return "rgb(" + maxColorKey + ")";
+}
+
 var Selected = function() {
     this.audio = document.getElementById('audio');
     this.lyricContainer = document.getElementById('lyricContainer');
@@ -670,7 +707,8 @@ var Selected = function() {
     this.lyricWrapper = document.getElementById('lyricWrapper');
     this.cover_img = document.getElementById("cover_img");
     this.disapointer = document.getElementById("disapointer");
-    this.cover_center = document.getElementById("cover_center");
+    this.cover_disc = document.getElementById("cover_disc");
+    this.cover_disc_img = document.getElementById("cover_disc_img");
     this.currentIndex = 0;
     this.lyric = null;
     this.lyricStyle = 0; //random num to specify the different class name for lyric
@@ -871,7 +909,8 @@ Selected.prototype = {
                 }
             }
             that.cover_img.classList.add("paused");
-            that.cover_center.classList.add("paused");
+            that.cover_disc.classList.add("paused");
+            that.cover_disc_img.classList.add("paused");
             that.disapointer.classList.remove("rotate");
         });
         // play the animation
@@ -891,7 +930,8 @@ Selected.prototype = {
                 }
             }
             that.cover_img.classList.remove("paused");
-            that.cover_center.classList.remove("paused");
+            that.cover_disc.classList.remove("paused");
+            that.cover_disc_img.classList.remove("paused");
             that.disapointer.classList.add("rotate");
         });
 
@@ -976,16 +1016,21 @@ Selected.prototype = {
         var that = this;
 
         this.lyricContainer.textContent = 'loading song...';
-        this.audio.src = './music/' + songName + '.mp3';
+        this.audio.src = 'music/' + songName + '.mp3';
 
-        this.cover_img.src = "./music/" + songName + '.webp';
+        this.cover_img.src = "music/" + songName + '.webp';
+        this.cover_disc_img.src = "music/" + songName + '.webp';
+        // this.cover_disc.src = this.cover_img.src;
         this.cover_img.classList.remove("rotate");
-        this.cover_center.classList.remove("rotate");
+        this.cover_disc.classList.remove("rotate");
+        this.cover_disc_img.classList.remove("rotate");
         this.disapointer.classList.remove("playing");
         this.disapointer.classList.remove("rotate");
         this.cover_img.addEventListener('load',function(){
+            this.style.borderColor = mainRGB(this);
             this.classList.add("rotate");
-            that.cover_center.classList.add("rotate");
+            that.cover_disc.classList.add("rotate");
+            that.cover_disc_img.classList.add("rotate");
             that.disapointer.classList.add("playing");
             that.disapointer.classList.add("rotate");
         },{
@@ -1028,8 +1073,8 @@ Selected.prototype = {
         this.lyricContainer.style.top = Math.floor((screenHeight-100)*0.4);
         //empty the lyric
         this.lyric = null;
-        // this.lyricStyle = 4;
-        this.lyricStyle = Math.floor(Math.random() * 5);
+        this.lyricStyle = 4;
+        // this.lyricStyle = Math.floor(Math.random() * 5);
         //1145141919810
     },
     getLyricFetch: async function(url) {
