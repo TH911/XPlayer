@@ -43,8 +43,10 @@ function playlist_hide(){
         //scroll to which is playing
         var playlist_ol = document.getElementById("playlist_ol");
         var now = document.getElementById("playlist-" + PLAYER.currentIndex);
-        var playlist_height = playlist.style.height.split('px')[0];
-        playlist_ol.scrollTop = Math.max(0,now.offsetTop - Math.floor(parseInt(playlist_height)/2));
+        playlist_ol.scrollTo({
+            top: Math.max(0,now.offsetTop - Math.floor(parseInt(playlist.clientHeight)/2)),
+            behavior: 'smooth'
+        });
     }else{
         playlist.style.display = "none";
         button_search.style.display = "block";
@@ -91,10 +93,10 @@ function initAudioEvent(index) {
 
     //Update the img
     audio.addEventListener('pause', function() {
-        audioPlayer.src = 'data:image/png;base64,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';
+        audioPlayer.innerHTML = '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M6.271 5.055a.5.5 0 0 1 .52.038l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 6 10.5v-5a.5.5 0 0 1 .271-.445"/>';
     }, false);
     audio.addEventListener('play', function() {
-        audioPlayer.src = 'data:image/png;base64,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';
+        audioPlayer.innerHTML = '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5m4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5"/>';
     }, false);
     
     // play/pause when click
@@ -293,19 +295,19 @@ async function searchSongs(query) {
 
 
 searchBox.addEventListener('input', (event) => {
-    const query = event.target.value;
-    searchSongs(query);
+    searchSongs(event.target.value);
 });
 
 
 searchResults.addEventListener('click', (event) => {
-    const clickedItem = event.target;
-    if (clickedItem.tagName.toLowerCase() === 'li') {
-        document.getElementById("search-box").value = "";
-        document.getElementById("search-results").innerHTML = "";
-        responsiveDesign();
-        PLAYER.playNum(parseInt(clickedItem.id.substring(13))-1);
+    var clickedItem = event.target;
+    while(clickedItem.tagName.toLowerCase() != 'li'){
+        clickedItem = clickedItem.parentNode;
     }
+    document.getElementById("search-box").value = "";
+    document.getElementById("search-results").innerHTML = "";
+    responsiveDesign();
+    PLAYER.playNum(parseInt(clickedItem.id.substring(13))-1);
 });
 
 function search_hide(){
@@ -665,6 +667,10 @@ var Selected = function() {
     this.audio = document.getElementById('audio');
     this.lyricContainer = document.getElementById('lyricContainer');
     this.playlist = document.getElementById('playlist');
+    this.lyricWrapper = document.getElementById('lyricWrapper');
+    this.cover_img = document.getElementById("cover_img");
+    this.disapointer = document.getElementById("disapointer");
+    this.cover_center = document.getElementById("cover_center");
     this.currentIndex = 0;
     this.lyric = null;
     this.lyricStyle = 0; //random num to specify the different class name for lyric
@@ -745,6 +751,63 @@ Selected.prototype = {
             if(++audioErrorCount<=2)that.play(that.currentIndex+1);
             else that.lyricContainer.textContent = '歌曲加载失败,请检查网络或清空缓存并重试';
         };
+        // change currentTime when click the lyrics.
+        this.lyricContainer.addEventListener('click', (event) => {
+            if(this.lyric.length <= 1)return;
+            var item = event.target;
+            if(item.tagName.toLowerCase() != 'span'){
+                return;
+            }
+            if(item.parentNode.tagName.toLowerCase() == 'span'){
+                item = item.parentNode;
+            }
+            // especially,lrc.
+            if(that.lyricMode == 'lrc'){
+                that.audio.currentTime = that.lyric[item.id.substring(5)][0];
+                that.audio.play();
+                if(mouseState == 'up'){
+                    that.lyricWrapper.scrollTo(0,line.offsetTop);
+                }
+                return;
+            }
+            
+            console.log("lyric-mode:",item.getAttribute('lyric-mode'));
+            //clean the animation first.
+            try{
+                if(that.lyric){
+                    for (var i = 0 ; i < that.lyric.length; i++) {
+                        var lyricInline = that.lyric[i];
+                        document.getElementById('line-' + i).className = '';
+                        //find the line                            
+                        for(var j = 0 ; j < lyricInline.length ; j++){
+                            var letter = document.getElementById('line-' + i + '-' + j);
+                            letter.style.animationName = '';
+                            letter.style.animationDuration = '';
+                            letter.style.animationTimingFunction = ''; 
+                            letter.className = '';
+                        }
+                    }
+                }
+            }catch(error){
+                console.error("ERROR:" + error);
+            }
+
+            if(item.getAttribute('lyric-mode') == "translate"){
+                that.audio.currentTime = item.getAttribute('start-time');
+                that.audio.play();
+                if(mouseState == 'up'){
+                    that.lyricWrapper.scrollTo(0,item.parentNode.previousSibling.offsetTop);
+                }
+                console.log("change currentTime when click.(translateLyric)");
+            }else{
+                that.audio.currentTime = item.getAttribute("start-time");
+                that.audio.play();
+                if(mouseState == 'up'){
+                    that.lyricWrapper.scrollTo(0,item.offsetTop);
+                }
+                console.log("change currentTime when click.(normalLyric)");
+            }
+        });
 
         //enable keyboard control , spacebar to change the song
         window.addEventListener('keydown', function(e) {
@@ -782,46 +845,62 @@ Selected.prototype = {
         };
         currentSong.className = 'current-song';
 
-        //sync the lyric
         this.audio.addEventListener("timeupdate", function() {
-            that.syncLyric();
-        });
-
-        // hack iOS which can't end.
-        this.audio.addEventListener("timeupdate",function(){
+            // hack iOS which can't end.
             if(this.currentTime > that.duration){
                 that.ending();
             }
+            //sync the lyric
+            that.syncLyric();
         });
 
         // pause the animation of lyric if audio has paused and it's xrc.
         this.audio.addEventListener("pause", function(){
-            try{
-                if(that.lastXrcLetterI != null) {
-                    var letter = document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
-                    letter.style.animationPlayState = "paused";
-                    if(pipWindowIsOpened){
-                        var letter = pipWindow.document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+            if(that.lyricMode == 'xrc'){
+                try{
+                    if(that.lastXrcLetterI != null) {
+                        var letter = document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
                         letter.style.animationPlayState = "paused";
+                        if(pipWindowIsOpened){
+                            var letter = pipWindow.document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                            letter.style.animationPlayState = "paused";
+                        }
                     }
+                }catch(error){
+                    console.error("ERROR:" + error);
                 }
-            }catch(error){
-                console.error("ERROR:" + error);
             }
+            that.cover_img.classList.add("paused");
+            that.cover_center.classList.add("paused");
+            that.disapointer.classList.remove("rotate");
         });
         // play the animation
         this.audio.addEventListener("play", function(){
-            try{
-                if(that.lastXrcLetterI) {
-                    var letter = document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
-                    letter.style.animationPlayState = "running";
-                    if(pipWindowIsOpened){
-                        var letter = pipWindow.document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
-                        letter.style.animationPlayState = "paused";
+            if(that.lyricMode == 'xrc'){
+                try{
+                    if(that.lastXrcLetterI) {
+                        var letter = document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                        letter.style.animationPlayState = "running";
+                        if(pipWindowIsOpened){
+                            var letter = pipWindow.document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                            letter.style.animationPlayState = "paused";
+                        }
                     }
+                }catch(error){
+                    console.error("ERROR:" + error);
                 }
-            }catch(error){
-                console.error("ERROR:" + error);
+            }
+            that.cover_img.classList.remove("paused");
+            that.cover_center.classList.remove("paused");
+            that.disapointer.classList.add("rotate");
+        });
+
+        // pause when click the cover
+        this.cover_img.addEventListener("click", function(){
+            if(that.audio.paused){
+                that.audio.play();
+            }else{
+                that.audio.pause();
             }
         });
 
@@ -863,7 +942,7 @@ Selected.prototype = {
                 title: name,
                 artist: lyric,
                 artwork: [
-                { src: document.getElementById('cover_img').src }
+                { src: that.cover_img.src }
                 ]
             });
             navigator.mediaSession.setActionHandler("seekbackward", function () {
@@ -898,6 +977,21 @@ Selected.prototype = {
 
         this.lyricContainer.textContent = 'loading song...';
         this.audio.src = './music/' + songName + '.mp3';
+
+        this.cover_img.src = "./music/" + songName + '.webp';
+        this.cover_img.classList.remove("rotate");
+        this.cover_center.classList.remove("rotate");
+        this.disapointer.classList.remove("playing");
+        this.disapointer.classList.remove("rotate");
+        this.cover_img.addEventListener('load',function(){
+            this.classList.add("rotate");
+            that.cover_center.classList.add("rotate");
+            that.disapointer.classList.add("playing");
+            that.disapointer.classList.add("rotate");
+        },{
+            once: true
+        });
+        
         console.log("change the src.");
         this.audio.currentTime = 0;
 
@@ -915,21 +1009,20 @@ Selected.prototype = {
         //scroll to which is playing
         var playlist_ol = document.getElementById("playlist_ol");
         var now = document.getElementById("playlist-" + PLAYER.currentIndex);
-        var playlist_height = playlist.style.height.split('px')[0];
-        playlist_ol.scrollTop = Math.max(0,now.offsetTop - Math.floor(parseInt(playlist_height)/2));
+        playlist_ol.scrollTo({
+            top: Math.max(0, Math.max(0,now.offsetTop - Math.floor(parseInt(this.playlist.clientHeight)/2))),
+            behavior: 'smooth'
+        });
 
         document.getElementById("songinfo_audio").textContent = this.playlist.getElementsByTagName("li")[songName-1].textContent;
         document.title = document.getElementById("songinfo_audio").textContent + " | XPlayer";
-
-        document.getElementById("cover_img").src = "./music/" + songName + '.webp';
 
         document.getElementById('songinfo_name').textContent = this.audio_name[songName];
         document.getElementById('songinfo_artist').textContent = "歌手: " + this.audio_artist[songName];
         document.getElementById('songinfo_album').textContent = "专辑: " + this.audio_album[songName];
         this.duration = this.audio_duration[songName];
 
-        sessionStorage.setItem("audio_name",this.audio_name[songName]);
-        this.mediaSessionAPI(sessionStorage.getItem("audio_name"),' ');
+        this.mediaSessionAPI(this.audio_name[this.currentIndex+1],' ');
 
         var screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
         this.lyricContainer.style.top = Math.floor((screenHeight-100)*0.4);
@@ -1071,14 +1164,7 @@ Selected.prototype = {
             line.textContent = v[1];
             line.style.backgroundClip = "text";
             line.style.webkitBackgroundClip = "text";
-            if(lyric.length > 1){
-                line.addEventListener("click", function(){
-                    that.audio.currentTime = v[0];
-                    if(mouseState == 'up'){
-                        document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
-                    }
-                });
-            }
+            
             line_p.appendChild(line);
             fragment.appendChild(line_p);
         });
@@ -1120,6 +1206,7 @@ Selected.prototype = {
             var line = document.createElement('span');
             line.id = 'line-' + i;
             line.setAttribute('start-time',lyric[i][0][1]);
+            line.setAttribute('lyric-mode','normal');
             //lyric for mediaSession API.
             line.setAttribute('word','');
             // line.setAttribute('end-time',lyric[i][lyric[i].length-1][2]);
@@ -1134,33 +1221,6 @@ Selected.prototype = {
                 line.setAttribute('word',line.getAttribute('word') + letter.textContent);
                 line.appendChild(letter);
             }
-            line.addEventListener("click", function(){
-                //clean the animation first.
-                try{
-                    if(that.lyric){
-                        for (var i = 0 ; i < that.lyric.length; i++) {
-                            var lyricInline = that.lyric[i];
-                            document.getElementById('line-' + i).className = '';
-                            //find the line                            
-                            for(var j = 0 ; j < lyricInline.length ; j++){
-                                var letter = document.getElementById('line-' + i + '-' + j);
-                                letter.style.animationName = '';
-                                letter.style.animationDuration = '';
-                                letter.style.animationTimingFunction = ''; 
-                                letter.className = '';
-                            }
-                        }
-                    }
-                }catch(error){
-                    console.error("ERROR:" + error);
-                }
-
-                that.audio.currentTime = this.getAttribute("start-time");
-                that.audio.play();
-                if(mouseState == 'up'){
-                    document.getElementById("lyricWrapper").scrollTop = this.offsetTop;
-                }
-            });
             line_p.appendChild(line);
             fragment.appendChild(line_p);
 
@@ -1176,16 +1236,7 @@ Selected.prototype = {
 
                     line.classList.add('translateLyric');
                     line.setAttribute('start-time',lyric[i][0][1]);
-
-                    line.addEventListener("click", function(){
-                        that.audio.play();
-                        if(mouseState == 'up'){
-                            var lyricWrapper = document.getElementById("lyricWrapper");
-                            var offsetTop = this.parentNode.previousSibling.offsetTop;
-                            lyricWrapper.scrollTop = offsetTop;
-                        }
-                        that.audio.currentTime = this.getAttribute('start-time');
-                    });
+                    line.setAttribute('lyric-mode','translate');
 
                     line_p.appendChild(line);
                     fragment.appendChild(line_p);
@@ -1223,7 +1274,7 @@ Selected.prototype = {
                     if(i != this.last){
                         this.last=i;
                         if(mouseState == 'up'){
-                            document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
+                            this.lyricWrapper.scrollTo(0,line.offsetTop);
                         }
                     }
 
@@ -1234,7 +1285,7 @@ Selected.prototype = {
                     if(lyric_for_API.length == 0)lyric_for_API = " ";
 
                     //sync MediaSession API
-                    this.mediaSessionAPI(sessionStorage.getItem("audio_name"),lyric_for_API);
+                    this.mediaSessionAPI(this.audio_name[this.currentIndex+1],lyric_for_API);
 
                     // sync pipWindow
                     if(pipWindowIsOpened){
@@ -1279,14 +1330,14 @@ Selected.prototype = {
                     // scroll
                     if(i != this.last){
                         if(mouseState == 'up'){
-                            document.getElementById("lyricWrapper").scrollTop = line.offsetTop;
+                            this.lyricWrapper.scrollTo(0,line.offsetTop);
                         }
                         this.last = i;
                     }
                     if(currentTime < lyricInline[0][1]){
-                        this.mediaSessionAPI(sessionStorage.getItem("audio_name"),' ');
+                        this.mediaSessionAPI(this.audio_name[this.currentIndex+1],' ');
                     }else{
-                        this.mediaSessionAPI(sessionStorage.getItem("audio_name"),line.getAttribute("word"));
+                        this.mediaSessionAPI(this.audio_name[this.currentIndex+1],line.getAttribute("word"));
                     }
                     
                     for(var j = 0 ; j < lyricInline.length ; j++){
@@ -1433,7 +1484,8 @@ Selected.prototype = {
         this.play(songName);
     },
     playAgain: function() {
-        this.play(window.location.hash.substring(1));
+        this.audio.currentTime = 0;
+        this.audio.play();
     },
     playNext: function() {
         var allSongs = this.playlist.children[0].children,

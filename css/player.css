@@ -70,17 +70,59 @@ a:hover {
     width: 50%;
 }
 #playlist {
+    border-radius: 10px;
     text-align: left;
     padding: 5px;
     position: absolute;
     left: 0;
     z-index: 9999;
 }
-#cover_img{
-    border: 5px solid #000;
+@keyframes rotate360 {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(359.999deg);
+    }
+}
+#cover_img {
+    border: 7px solid #000;
     height: 70%;
     width: 70%;
 }
+#cover_img.rotate, #cover_center.rotate {
+    border-radius: 100%;
+    animation: rotate360 12s linear infinite;
+    animation-play-state: running;
+}
+#cover_img.paused, #cover_center.paused {
+    animation-play-state: paused !important;
+}
+#disapointer {
+    display: none;
+}
+#disapointer.playing {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 15%;
+    height: 40%;
+    width: auto;
+    transition: transform 800ms linear;
+    transform-origin: 66.6666667% 22.66666667%;
+    transform: rotate(-50deg);
+}
+#disapointer.rotate {
+    transform: rotate(-20deg) !important;
+}
+#cover_center {
+    position: absolute;
+    height: 15%;
+    width: auto;
+    right: 42.5%;
+    top: 32.5%;
+}
+
 .info a {
     color: #bbb;
     text-decoration: underline;
@@ -286,6 +328,7 @@ a:hover {
         display: none !important;
     }
     #songimg {
+        right: -3.6vw;
         text-align: center;
         margin: auto;
         padding: 70px 70px 70px 70px;
@@ -293,13 +336,12 @@ a:hover {
         position: fixed;
         width: 24vw;
         height: 24vw;
-        right: 0;
         z-index: 999;
         top: calc((90vh - 24vw) / 2);
     }
     #playlist {
         background: #32323280;
-        width: 24vw;
+        width: 23vw;
         height: 90vh;
         display: block !important;
         /* overflow: auto; */
@@ -367,7 +409,7 @@ a:hover {
     -webkit-background-clip: text;
     background-clip: text;
     position: relative;
-    top: 130px;
+    top: 30%;
     text-shadow: 1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000; 
 }
 
@@ -704,6 +746,7 @@ a:hover {
     height: 70px;
     border: 1px solid #e0e0e0;
     color: #3e3e3e;
+    border-radius: 10px;
 }
 
 .audio-left {
@@ -713,7 +756,7 @@ a:hover {
     height: 100%;
 }
 
-.audio-left img {
+.audio-left svg {
     width: 40px;
     position: relative;
     top: 15px;
