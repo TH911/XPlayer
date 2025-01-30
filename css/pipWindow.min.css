@@ -1,1 +1,1 @@
-html{background:#000}body{text-align:center;position:relative;white-space:nowrap;min-width:min-content}body::-webkit-scrollbar{display:none}
+html{background:#000!important}body{text-align:center;position:relative;white-space:nowrap;min-width:min-content;background-clip:text!important;-webkit-background-clip:text!important}body::-webkit-scrollbar{display:none}.lyricInline{background-clip:text}

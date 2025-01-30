@@ -489,6 +489,9 @@ a:hover {
     font-weight: bolder;
     font-size: 1.4em;
 }
+.lyric-line {
+    cursor: pointer;
+}
 /* xrc */
 .current-line {
     transition: font-size 0.015s linear;
@@ -506,8 +509,6 @@ a:hover {
     transition-duration: 0s;
     transition-timing-function: linear;
     background:#fff -webkit-linear-gradient(left, #FAFA17, #FAFA17) no-repeat 0 0;
-    -webkit-background-clip: text;
-    background-clip: text;
     background-size: 0% 100%;
     color: transparent;
 }
@@ -518,8 +519,6 @@ a:hover {
     transition-duration: 0s;
     transition-timing-function: linear;
     background:#fff -webkit-linear-gradient(left, #ff1493, #ff1493) no-repeat 0 0;
-    -webkit-background-clip: text;
-    background-clip: text;
     background-size: 0% 100%;
     color: transparent;
 }
@@ -530,8 +529,6 @@ a:hover {
     transition-duration: 0s;
     transition-timing-function: linear;
     background:#fff -webkit-linear-gradient(left, #adff2f, #adff2f) no-repeat 0 0;
-    -webkit-background-clip: text;
-    background-clip: text;
     background-size: 0% 100%;
     color: transparent;
 }
@@ -542,8 +539,6 @@ a:hover {
     transition-duration: 0s;
     transition-timing-function: linear;
     background:#fff -webkit-linear-gradient(left, #d731f8, #d731f8) no-repeat 0 0;
-    -webkit-background-clip: text;
-    background-clip: text;
     background-size: 0% 100%;
     color: transparent;
 }
@@ -554,8 +549,6 @@ a:hover {
     transition-duration: 0s;
     transition-timing-function: linear;
     background:#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0;
-    -webkit-background-clip: text;
-    background-clip: text;
     background-size: 0% 100%;
     color: transparent;
 }
@@ -609,6 +602,27 @@ a:hover {
     color: #A6E22D;
 }
 
+#desktopLyricButton {
+    position: absolute;
+    right: 8px;
+    top: 18px;
+    font-size: 1.1em;
+    font-weight: bolder;
+    /* background-color: gold; */
+    /* background-color: #1b2426; */
+    background: transparent;
+    filter: brightness(75%);
+    border-radius: 10%;
+    border: none;
+    transition: filter 200ms linear;
+    cursor: pointer;
+}
+#desktopLyricButton:hover {
+    filter: brightness(90%);
+}
+#desktopLyricButton.unclick {
+    color: #999999;
+}
 
 /*for song info*/
 #songinfo_name{
