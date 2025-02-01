@@ -38,7 +38,6 @@ function playlist_hide(){
         playlist.style.display = "block";
         button_search.style.display = "none";
         document.getElementById("search-container").style.display = "none";
-        document.getElementById("controls").style.display = "none";
 
         //scroll to which is playing
         var playlist_ol = document.getElementById("playlist_ol");
@@ -50,15 +49,18 @@ function playlist_hide(){
     }else{
         playlist.style.display = "none";
         button_search.style.display = "block";
-        document.getElementById("controls").style.display = "block";
     }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     // 设置音频文件名显示宽度
     var element = document.querySelector('.audio-right');
-    var maxWidth = window.getComputedStyle(element, null).width;
-    document.querySelector('.audio-right p').style.maxWidth = maxWidth;
+    var maxWidth = parseFloat(window.getComputedStyle(element, null).width.replace('px'));
+    var tool = 0;
+    if('documentPictureInPicture' in window){
+        tool = 8 + 29.6+10;
+    }
+    document.querySelector('.audio-right p').style.maxWidth = (maxWidth - tool) + 'px';
 
     // 可能会有多个音频，逐个初始化音频控制事件
     var audios = document.getElementsByTagName('audio');
@@ -158,8 +160,13 @@ function dragProgressDotEvent(audio, index) {
     document.addEventListener('mouseup', end, false);
     document.addEventListener('touchend', end, false);
 
+    var select = null;
     function down(event) {
         if (!audio.paused || audio.currentTime != 0) { // 只有音乐开始播放后才可以调节，已经播放过但暂停了的也可以
+            select = document.body.style.userSelect || document.body.style.webkitUserSelect;
+            document.body.style.userSelect = 'none';
+            document.body.style.webkitUserSelect = 'none';
+
             flag = true;
 
             position.oriOffestLeft = dot.offsetLeft;
@@ -201,6 +208,8 @@ function dragProgressDotEvent(audio, index) {
     }
 
     function end() {
+        document.body.style.userSelect = select;
+        document.body.style.webkitUserSelect = select;
         flag = false;
     }
 }
@@ -289,7 +298,7 @@ async function searchSongs(query) {
     );
 
     searchResults.innerHTML = filteredSongs.map(song => 
-        `<li id='search-songs-${song.lrc_name}'><img src="./music/${song.lrc_name}.webp"><span><strong>${song.song_name}</strong> - ${song.artist}</span></li>`
+        `<li id='search-songs-${song.lrc_name}'><img src="./music/${song.lrc_name}.webp"><span><b>${song.song_name}</b> - ${song.artist}</span><span class="searchResultAlbum">${song.album}</span></li>`
     ).join('');
 }
 
@@ -314,10 +323,8 @@ function search_hide(){
     var search_container = document.getElementById("search-container");
     if(search_container.style.display == "none"){
         search_container.style.display = "block";
-        document.getElementById("controls").style.display = "none";
     }else{
         search_container.style.display = "none";
-        document.getElementById("controls").style.display = "block";
     }
 }
 
@@ -365,15 +372,108 @@ function font_change(font){
             break;
     }
 }
-function hide_font(){
-    var font_menu = document.getElementById("menu-font");
-    if(font_menu.style.display == "none")font_menu.style.display = "block";
-    else font_menu.style.display = "none";
+function lyricColorMode_change(mode){
+    var mode2=localStorage.getItem("lyricColorMode");
+    if(mode2!=null){
+        document.getElementById("menu_lyricColorMode_" + localStorage.getItem("lyricColorMode")).style.color = "#999";
+    }
+    localStorage.setItem("lyricColorMode",mode);
+    document.getElementById("menu_lyricColorMode_" + mode).style.color = "#fff";
+
+    if(mode == "choose"){
+        var lyricColor = localStorage.getItem("lyricColor");
+        if(!lyricColor){
+            localStorage.setItem("lyricColor","FAFA17,ff1493,adff2f,d731f8,00CC65");
+            lyricColor = "FAFA17,ff1493,adff2f,d731f8,00CC65";
+        }
+        var list = localStorage.getItem("lyricColor").split(',');
+        localStorage.setItem("lyricColor",list[0]);
+        try{
+            PLAYER.lyricStyleList = [list[0]];
+            PLAYER.lyricStyle = Math.floor(Math.random() * PLAYER.lyricStyleList.length);
+        }catch{
+
+        }
+        for(var i = 1 ; i < list.length ; i++){
+            lyricColor_change(list[i]);
+        }
+    }
 }
-function hide_playmode(){
-    var playmode_menu = document.getElementById("menu-playmode");
-    if(playmode_menu.style.display == "none")playmode_menu.style.display = "block";
-    else playmode_menu.style.display = "none";
+
+function showToast(message) {
+    var toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 1500);
+}
+
+function lyricColor_change(color){
+    var that = document.getElementById("menu_lyricColor_" + color);
+    if(!localStorage.getItem("lyricColor")){
+        localStorage.setItem("lyricColor","FAFA17,ff1493,adff2f,d731f8,00CC65");
+    }
+    var list = localStorage.getItem("lyricColor").split(',');
+    if(!localStorage.getItem("lyricColorMode")){
+        localStorage.setItem("lyricColorMode","random");
+    }
+    var lyricColorMode = localStorage.getItem("lyricColorMode");
+    if(lyricColorMode == "random"){
+        if(list.length == 1 && color == list[0] && Array.from(that.className.split(' ')).includes('choosed')){
+            showToast("操作失败:必须保留一种颜色");
+            return;
+        }
+        if(Array.from(that.className.split(' ')).includes('choosed')){
+            that.classList.remove('choosed');
+            var i=0,j=0;
+            for(;i < list.length ;i++){
+                if(list[i] != color){
+                    list[j++]=list[i];
+                }
+            }
+            list.length = j;
+        }else{
+            that.classList.add('choosed');
+            if(!list.includes(color)){
+                list.push(color);
+            }
+        }
+        try{
+            var flag = 0;
+            for(var i = 0;i < list.length ; i++){
+                if(list[i] == PLAYER.lyricStyleList[PLAYER.lyricStyle]){
+                    flag = i;
+                    break;
+                }
+            }
+            PLAYER.lyricStyleList = list;
+            PLAYER.lyricStyle = flag;
+        }catch{
+    
+        }
+        var string = list[0];
+        for(var i = 1 ; i < list.length ; i++){
+            string += ',' + list[i];
+        }
+        localStorage.setItem("lyricColor",string);
+    }else{
+        if(localStorage.getItem("lyricColor") == color){
+            return;
+        }
+        Array.from(document.getElementsByClassName("menu_lyricColor_button")).forEach(element => {
+            element.classList.remove('choosed');
+        });
+        that.classList.add('choosed');
+        localStorage.setItem("lyricColor",color);
+        try{
+            PLAYER.lyricStyleList = [color];
+            PLAYER.lyricStyle = 0;
+        }catch{
+    
+        }
+    }
 }
 
 var pipWindowMode = function(){
@@ -388,7 +488,7 @@ pipWindowMode.prototype = {
         if(!this.check())return;
 
         // change the color of the desktopLyricButton.
-        PLAYER.desktopLyricButton.style.color = PLAYER.lyricStyleList[PLAYER.lyricStyle];
+        PLAYER.desktopLyricButton.style.color = '#' + PLAYER.lyricStyleList[PLAYER.lyricStyle];
 
         this.fillMode = fillMode;
         this.window = await window.documentPictureInPicture.requestWindow({
@@ -478,7 +578,11 @@ pipWindowMode.prototype = {
                 console.error("ERROR:" + error);
             }
         } else {
-            this.fillXrc(document.getElementById('line-' + PLAYER.lastXrcLetterI));
+            try{
+                this.fillXrc(document.getElementById('line-' + PLAYER.lastXrcLetterI));
+            }catch{
+
+            }
         }
     },
     textLength: function(text){
@@ -518,7 +622,7 @@ pipWindowMode.prototype = {
         // pipWindow
         tool.style.fontSize = Math.min(Math.floor((this.window.innerWidth-40) / text_length),this.window.innerHeight-20) + 'px';
 
-        tool.style.color = PLAYER.lyricStyleList[PLAYER.lyricStyle];
+        tool.style.color = '#' + PLAYER.lyricStyleList[PLAYER.lyricStyle];
         this.document.body.innerHTML = '';
         // 114514
         tool.style.textAlign = "center";
@@ -545,7 +649,7 @@ pipWindowMode.prototype = {
         if(!this.open){
             return;
         }
-        this.document.body.classList.add('current-line-xrc-' + PLAYER.lyricStyle);
+        this.document.body.classList.add('current-line-xrc-' + PLAYER.lyricStyleList[PLAYER.lyricStyle]);
         this.document.body.innerHTML = '';
         var newNode = node.cloneNode(2);
         if(PLAYER.lyricTranslate == null){
@@ -555,7 +659,6 @@ pipWindowMode.prototype = {
             Array.from(newNode.children).forEach(element => {
                 element.classList.add('lyricInline');
                 element.style.background = "#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0; !important";
-                // element.style.backgroundSize = "0% 100%";
             });
 
             newNode.style.lineHeight = this.window.innerHeight + 'px';
@@ -580,7 +683,7 @@ pipWindowMode.prototype = {
                 newNode2.style.lineHeight = Math.floor(this.window.innerHeight/2*0.8) + 'px';
                 this.document.body.appendChild(newNode2);
             } else{
-                this.document.body.classList.add('current-line-xrc-' + PLAYER.lyricStyle);
+                this.document.body.classList.add('current-line-xrc-' + PLAYER.lyricStyleList[PLAYER.lyricStyle]);
                 this.document.body.innerHTML = '';
                 var fontSize = this.window.innerHeight - 20;
                 newNode.style.fontSize = fontSize + 'px';
@@ -627,9 +730,8 @@ document.addEventListener('keydown', function(e){
         pipWindow.close();
     }
 });
-
 var PLAYER;
-window.onload = function() {
+window.addEventListener('load', function(){
     //for the color of the menu
     var mode = localStorage.getItem("player_mode");
     if(mode == null){
@@ -644,14 +746,162 @@ window.onload = function() {
         font = "fordefault";
     }font_change(font);
 
+    //for the lyricColorMode
+    var lyricColorMode = localStorage.getItem("lyricColorMode");
+    if(!lyricColorMode){
+        localStorage.setItem("lyricColorMode","random");
+        lyricColorMode = "random";
+    }lyricColorMode_change(lyricColorMode);
+
+    if(!localStorage.getItem("lyricColor")){
+        localStorage.setItem("lyricColor","FAFA17,ff1493,adff2f,d731f8,00CC65");
+    }
+    var lyricColorList = localStorage.getItem("lyricColor");
+    Array.from(lyricColorList.split(',')).forEach(color => {
+        lyricColor_change(color);
+    });
+
+    if(lyricColorMode == 'choose'){
+        document.getElementById('menu_lyricColor_' + lyricColorList).classList.add('choosed');
+    }
+
+    
+    // button under prorgess.
+    var volumeButton = document.getElementById("volumeButton");
+    var volumeConfig = document.getElementById("volumeConfig");
+    // hack:click the button will make down()'s check true,and this second,and it can't close.
+    var displayNoneSet = false;
+    volumeButton.addEventListener('click', function(){
+        if(volumeConfig.style.display == 'block'){
+            volumeConfig.style.display = 'none';
+        }else if(!displayNoneSet){
+            volumeConfig.style.display = 'block';
+        }else{
+            displayNoneSet = false;
+        }
+    });
+    var progress = volumeConfig.getElementsByClassName("bar-bg")[0];
+    progress.addEventListener('click', event => {
+
+        var offsetTop = event.clientY - progress.getBoundingClientRect().top;
+        var height = parseFloat(window.getComputedStyle(progress, null).height.replace('px'));
+        var ratio = (height - offsetTop) / height;
+        PLAYER.audio.volume = ratio;
+        if(ratio == 0){
+            document.querySelector("#volumeButton svg").innerHTML = '<path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06M6 5.04 4.312 6.39A.5.5 0 0 1 4 6.5H2v3h2a.5.5 0 0 1 .312.11L6 10.96zm7.854.606a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0"/>';
+        }else if(ratio == 1){
+            document.querySelector("#volumeButton svg").innerHTML = '<path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.48 7.48 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.48 5.48 0 0 1 11.025 8a5.48 5.48 0 0 1-1.61 3.89z"/><path d="M10.025 8a4.5 4.5 0 0 1-1.318 3.182L8 10.475A3.5 3.5 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.5 4.5 0 0 1 10.025 8M7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11"/>';
+        }else{
+            document.querySelector("#volumeButton svg").innerHTML = '<path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11M12.025 8a4.5 4.5 0 0 1-1.318 3.182L10 10.475A3.5 3.5 0 0 0 11.025 8 3.5 3.5 0 0 0 10 5.525l.707-.707A4.5 4.5 0 0 1 12.025 8"/>';
+        }
+        var bar = progress.getElementsByClassName('bar')[0];
+        bar.style.height = ratio*100 + '%';
+        volumeConfig.getElementsByClassName("percent")[0].textContent = `${Math.round(ratio*100)}%`;
+        bar.style.top = offsetTop + 'px';
+        var dot = volumeConfig.getElementsByClassName('dot')[0];
+        dot.style.top = `${offsetTop-5}px`;
+    });
+    
+    var mouseDown = false,select = null;
+    function down(event){
+        if(volumeConfig.style.display != 'block'){
+            return;
+        }
+        if(!progress.contains(event.target)){
+            document.body.style.userSelect = select;
+            document.body.style.webkitUserSelect = select;
+            mouseDown = false;
+            displayNoneSet = true;
+            volumeConfig.style.display = 'none';
+            return;
+        }
+        select = document.body.style.userSelect || document.body.style.webkitUserSelect;
+        document.body.style.userSelect = 'none';
+        document.body.style.webkitUserSelect = 'none';
+        mouseDown = true;
+    }
+    function move(event){
+        event.preventDefault();
+
+        if(!mouseDown){
+            return;
+        }
+
+        var offsetTop = (event.touches ? event.touches[0].clientY : event.clientY) - progress.getBoundingClientRect().top;
+        var height = parseFloat(window.getComputedStyle(progress, null).height.replace('px'));
+        var ratio = (height - offsetTop) / height;
+        var bar = volumeConfig.getElementsByClassName('bar')[0];
+        ratio = Math.max(ratio,0);
+        ratio = Math.min(ratio,1);
+        PLAYER.audio.volume = ratio;
+        if(ratio == 0){
+            document.querySelector("#volumeButton svg").innerHTML = '<path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06M6 5.04 4.312 6.39A.5.5 0 0 1 4 6.5H2v3h2a.5.5 0 0 1 .312.11L6 10.96zm7.854.606a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0"/>';
+        }else if(ratio == 1){
+            document.querySelector("#volumeButton svg").innerHTML = '<path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.48 7.48 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.48 5.48 0 0 1 11.025 8a5.48 5.48 0 0 1-1.61 3.89z"/><path d="M10.025 8a4.5 4.5 0 0 1-1.318 3.182L8 10.475A3.5 3.5 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.5 4.5 0 0 1 10.025 8M7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11"/>';
+        }else{
+            document.querySelector("#volumeButton svg").innerHTML = '<path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11M12.025 8a4.5 4.5 0 0 1-1.318 3.182L10 10.475A3.5 3.5 0 0 0 11.025 8 3.5 3.5 0 0 0 10 5.525l.707-.707A4.5 4.5 0 0 1 12.025 8"/>';
+        }
+        bar.style.height = `${ratio*100}%`;
+        volumeConfig.getElementsByClassName("percent")[0].textContent = `${Math.round(ratio*100)}%`;
+        bar.style.top = `${(1-ratio)*100}%`;
+        var dot = volumeConfig.getElementsByClassName('dot')[0];
+        dot.style.top = `calc(${(1-ratio)*100}% - 5px)`;
+    }
+    function up(){
+        document.body.style.userSelect = select;
+        document.body.style.webkitUserSelect = select;
+        mouseDown = false;
+    }
+    document.addEventListener('mousedown', down);
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+    document.addEventListener('touchstart', down);
+    document.addEventListener('touchmove', move);
+    document.addEventListener('touchend', up);
+
     // display the button to control desktop lyric.
     if('documentPictureInPicture' in window){
         document.getElementById("desktopLyricButton").style.display = "block";
     }
+    // event for config UI.
+    var configButton = document.getElementById("configButton");
+    var config = document.getElementById("config");
+    configButton.addEventListener('click', function(){
+        config.style.display = 'block';
+        config.style.animation = "fadeIn 100ms linear";
+        this.style.display = 'none';
+    });
+
+    var configBackButton = document.getElementById("configBackButton");
+    configBackButton.addEventListener('click', function(){
+        config.style.display = 'none';
+        configButton.style.display = 'block';
+    });
+
+    var configDefaultButton = document.getElementById("configDefaultButton");
+    configDefaultButton.addEventListener('click', function(){
+        font_change('fordefault');
+        playmode_change('order');
+        lyricColorMode_change('random');
+        localStorage.setItem("lyricColor","FAFA17,ff1493,adff2f,d731f8,00CC65");
+        var list = localStorage.getItem("lyricColor").split(',');
+        var flag = 0;
+        for(var i = 0 ; i < list.length ; i++){
+            if(PLAYER.lyricStyleList[PLAYER.lyricStyle] == list[i]){
+                flag = i;
+                break;
+            }
+        }
+        PLAYER.lyricStyle = flag;
+        PLAYER.lyricStyleList = list;
+        Array.from(document.getElementsByClassName("menu_lyricColor_button")).forEach(element => {
+            element.classList.add("choosed");
+        });
+    });
 
     PLAYER = new Selected();
     PLAYER.init();
-};
+}); 
 
 var mouseState = 'up',mouseStateTime = 0,mouseTouchStart = false;
 var mouseInLyricContainer = false;
@@ -749,7 +999,16 @@ var Selected = function() {
     this.currentIndex = 0;
     this.lyric = null;
     this.lyricStyle = 0; //random num to specify the different class name for lyric
-    this.lyricStyleList = ['#FAFA17','#ff1493','#adff2f','#d731f8','#00CC65'];
+    if(!localStorage.getItem("lyricColor")){
+        localStorage.setItem("lyricColor","FAFA17,ff1493,adff2f,d731f8,00CC65");
+    }
+    this.lyricStyleList = localStorage.getItem("lyricColor").split(',');
+    if(!localStorage.getItem("lyricColorMode")){
+        localStorage.setItem("lyricColorMode","random");
+    }
+    if(localStorage.getItem("lyricColorMode") == "choose"){
+        this.lyricStyleList = [localStorage.getItem("lyricColor").split(',')[0]];
+    }
     this.lyricMode = "lrc";
     this.clickedToSetCurrentTime = false;
     this.last = -1;
@@ -1142,9 +1401,9 @@ Selected.prototype = {
         //empty the lyric
         this.lyric = null;
         this.lyricStyle = 4;
-        this.lyricStyle = Math.floor(Math.random() * 5);
+        this.lyricStyle = Math.floor(Math.random() * this.lyricStyleList.length);
         if(this.desktopLyricButton.style.color){
-            this.desktopLyricButton.style.color = this.lyricStyleList[this.lyricStyle];
+            this.desktopLyricButton.style.color = '#' + this.lyricStyleList[this.lyricStyle];
         }
         //1145141919810
     },
@@ -1388,7 +1647,7 @@ Selected.prototype = {
 
                     var line = document.getElementById('line-' + i);
                     //randomize the color of the current line of the lyric
-                    line.className = 'current-line-' + this.lyricStyle;
+                    line.className = 'current-line-' + this.lyricStyleList[this.lyricStyle];
 
                     if(i != this.last){
                         this.last=i;
@@ -1436,7 +1695,7 @@ Selected.prototype = {
         }
     },
     syncLyricXrc: function(){
-        this.lyricContainer.classList.add('current-line-xrc-' + this.lyricStyle);
+        this.lyricContainer.classList.add('current-line-xrc-' + this.lyricStyleList[this.lyricStyle]);
         try{
             if(!this.lyric)return;
             // preload by 0.25s.
@@ -1475,14 +1734,14 @@ Selected.prototype = {
                         var letter = document.getElementById('line-' + i + '-' + j);
 
                         if(currentTime > lyricInline[j][2]) {
-                            letter.classList.add('current-line-xrc-played-' + this.lyricStyle);
-                            letter.classList.remove('current-line-xrc-playing-' + this.lyricStyle);
+                            letter.classList.add('current-line-xrc-played-' + this.lyricStyleList[this.lyricStyle]);
+                            letter.classList.remove('current-line-xrc-playing-' + this.lyricStyleList[this.lyricStyle]);
                         } else {
                             if(currentTime < lyricInline[j][1]){
                                 break;
                             }
 
-                            letter.classList.add('current-line-xrc-playing-' + this.lyricStyle);
+                            letter.classList.add('current-line-xrc-playing-' + this.lyricStyleList[this.lyricStyle]);
 
                             if(this.lastXrcLetterI != i || this.lastXrcLetterJ != j){
                                 letter.style.animationName = "lyric_sync_letter";

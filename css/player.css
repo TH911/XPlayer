@@ -28,7 +28,7 @@ html, body {
     font-family: 'Microsoft Yahei','微软雅黑';
 }
 html {
-    background-color: #1b2426;
+    background: #1b2426;
 }
 header h1 {
     display: inline-block;
@@ -178,11 +178,35 @@ a:hover {
     margin: 0;
 }
 
+#toast {
+    position: fixed;
+    z-index: 999999999;
+    top: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s, visibility 0.5s ease-in-out;
+}
+
+#toast.show {
+    opacity: 1;
+    visibility: visible;
+}
+
 @font-face {
     font-family: "fordefault";
     src: url("../fonts/default.woff2") format('woff2'),
     url("../fonts/default.woff") format('woff'),
     url("../fonts/default.ttc") format('ttc');
+}
+#menu_font_fordefault {
+    font-family: foredefault;
 }
 @font-face {
     font-family: "kaiti";
@@ -190,11 +214,17 @@ a:hover {
     url("../fonts/kaiti.woff") format('woff'),
     url("../fonts/kaiti.ttf") format('ttf');
 }
+#menu_font_kaiti {
+    font-family: kaiti;
+}
 @font-face {
     font-family: "songti";
     src: url("../fonts/songti.woff2") format('woff2'),
     url("../fonts/songti.woff") format('woff'),
     url("../fonts/songti.ttc") format('ttc');
+}
+#menu_font_songti {
+    font-family: songti;
 }
 @font-face {
     font-family: "huawenxingkai";
@@ -202,11 +232,17 @@ a:hover {
     url("../fonts/huawenxingkai.woff") format('woff'),
     url("../fonts/huawenxingkai.ttf") format('ttf');
 }
+#menu_font_huawenxingkai {
+    font-family: huawenxingkai;
+}
 @font-face {
     font-family: "youyuan";
     src: url("../fonts/youyuan.woff2") format('woff2'),
     url("../fonts/youyuan.woff") format('woff'),
     url("../fonts/youyuan.ttf") format('ttf');
+}
+#menu_font_youyuan {
+    font-family: youyuan;
 }
 @font-face {
     font-family: "fangzhengshuti";
@@ -214,9 +250,101 @@ a:hover {
     url("../fonts/fangzhengshuti.woff") format('woff'),
     url("../fonts/fangzhengshuti.ttf") format('ttf');
 }
+#menu_font_fangzhengshuti {
+    font-family: fangzhengshuti;
+}
+#config {
+    position: fixed;
+    min-height: 100vh;
+    min-width: 100vw;
+    top: 0;
+    z-index: 999999999;
+    background: #1b2426;
+    opacity: 0.95;
+    cursor: default;
+}
+#config>div {
+    position: absolute;
+    top: 40px;
+}
+#configBackButton {
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    background: #eee;
+    border: transparent;
+    border-radius: 10%;
+    cursor: pointer;
+}
+#configDefaultButton {
+    position: fixed;
+    left: 50px;
+    top: 10px;
+    height: 25px;
+    font-size: 18px;
+    background: #eee;
+    border: transparent;
+    border-radius: 10%;
+    cursor: pointer;
+}
+#config button:hover {
+    filter: brightness(120%);
+}
+#config button {
+    cursor: pointer;
+}
+#config .menu_button {
+    border: none;
+    background: none;
+    font-size: 1em;
+    color: #999;
+}
+#config .menu_button:hover {
+    color: #fff !important;
+}
+
+#config button.menu_lyricColor_button {
+    color: transparent;
+    border: none;
+    border-radius: 10%;
+}
+#config button.menu_lyricColor_button.choosed {
+    border: 2px solid #bbb;
+}
+#config #menu_lyricColor_FAFA17 {
+    background: #FAFA17;
+}
+#config #menu_lyricColor_ff1493 {
+    background: #ff1493;
+}
+#config #menu_lyricColor_adff2f {
+    background: #adff2f;
+}
+#config #menu_lyricColor_d731f8 {
+    background: #d731f8;
+}
+#config #menu_lyricColor_00CC65 {
+    background: #00CC65;
+}
 
 /* mobile */
 @media screen and (max-width: 768px) {
+
+    #configButton {
+        position: fixed;
+        z-index: 9999999999999;
+        top: 10px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        color: #999;
+        transition: color 200ms linear;
+        cursor: pointer;
+    }
+    #configButton:hover {
+        color: #fff;
+    }
+
     #lyricWrapper {
         /* for test */
         /* background: #1493dd; */
@@ -224,10 +352,6 @@ a:hover {
     }
     #spectrum {
         width: 90%;
-    }
-    #controls {
-        position: fixed;
-        top: 0;
     }
     .mobileButton {
         display: block !important;
@@ -353,10 +477,6 @@ a:hover {
     #spectrum {
         width: 50%;
     }
-    #controls {
-        position: relative;
-        height: 77px;
-    }
     .mobileButton {
         display: none !important;
     }
@@ -411,17 +531,28 @@ a:hover {
         top: 15%;
         width: 70%;
     }
+    #configButton {
+        display: flex;
+        align-items: center;
+        position: fixed;
+        z-index: 9999999999999;
+        bottom: 10px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        color: #999;
+        transition: color 200ms linear;
+        cursor: pointer;
+    }
+    #configButton:hover {
+        color: #fff;
+    }
 }
 #search-container {
     position: fixed;
     z-index: 1000;
 }
 
-#controls {
-    z-index: 999;
-    overflow: hidden;
-    right: 0;
-}
 
 #lyricWrapper {
     left: 0;
@@ -459,31 +590,31 @@ a:hover {
     }
 }
 /*the highlight color of the current lyric line*/
-.current-line-0 {
+.current-line-FAFA17 {
     width: auto;
     color: #FAFA17;
     font-weight: bolder;
     font-size: 1.4em;
 }
-.current-line-1 {
+.current-line-ff1493 {
     width: auto;
     color: #ff1493;
     font-weight: bolder;
     font-size: 1.4em;
 }
-.current-line-2 {
+.current-line-adff2f {
     width: auto;
     color: #adff2f;
     font-weight: bolder;
     font-size: 1.4em;
 }
-.current-line-3 {
+.current-line-d731f8 {
     width: auto;
     color: #d731f8;
     font-weight: bolder;
     font-size: 1.4em;
 }
-.current-line-4 {
+.current-line-00CC65 {
     width: auto;
     color: #00CC65;
     font-weight: bolder;
@@ -502,7 +633,7 @@ a:hover {
     text-shadow: none;
     font-weight: bolder;
 }
-.current-line-xrc-0 {
+.current-line-xrc-FAFA17 {
     text-shadow: none !important;
     font-weight: bolder;
     transition-property: color;
@@ -512,7 +643,7 @@ a:hover {
     background-size: 0% 100%;
     color: transparent;
 }
-.current-line-xrc-1 {
+.current-line-xrc-ff1493 {
     text-shadow: none !important;
     font-weight: bolder;
     transition-property: color;
@@ -522,7 +653,7 @@ a:hover {
     background-size: 0% 100%;
     color: transparent;
 }
-.current-line-xrc-2 {
+.current-line-xrc-adff2f {
     text-shadow: none !important;
     font-weight: bolder;
     transition-property: color;
@@ -532,7 +663,7 @@ a:hover {
     background-size: 0% 100%;
     color: transparent;
 }
-.current-line-xrc-3 {
+.current-line-xrc-d731f8 {
     text-shadow: none !important;
     font-weight: bolder;
     transition-property: color;
@@ -542,7 +673,7 @@ a:hover {
     background-size: 0% 100%;
     color: transparent;
 }
-.current-line-xrc-4 {
+.current-line-xrc-00CC65 {
     text-shadow: none !important;
     font-weight: bolder;
     transition-property: color;
@@ -552,23 +683,23 @@ a:hover {
     background-size: 0% 100%;
     color: transparent;
 }
-.current-line-xrc-played-0 {
+.current-line-xrc-played-FAFA17 {
     background:#fff -webkit-linear-gradient(left, #FAFA17, #FAFA17) no-repeat 0 0;
     background-size: 100% 100% !important;
 }
-.current-line-xrc-played-1 {
+.current-line-xrc-played-ff1493 {
     background:#fff -webkit-linear-gradient(left, #ff1493, #ff1493) no-repeat 0 0;
     background-size: 100% 100% !important;
 }
-.current-line-xrc-played-2 {
+.current-line-xrc-played-adff2f {
     background:#fff -webkit-linear-gradient(left, #adff2f, #adff2f) no-repeat 0 0;
     background-size: 100% 100% !important;
 }
-.current-line-xrc-played-3 {
+.current-line-xrc-played-d731f8 {
     background:#fff -webkit-linear-gradient(left, #d731f8, #d731f8) no-repeat 0 0;
     background-size: 100% 100% !important;
 }
-.current-line-xrc-played-4 {
+.current-line-xrc-played-00CC65 {
     background:#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0;
     background-size: 100% 100% !important;
 }
@@ -580,19 +711,19 @@ a:hover {
         background-size:100% 100%;
     }
 }
-.current-line-xrc-playing-0 {
+.current-line-xrc-playing-FAFA17 {
     background:#fff -webkit-linear-gradient(left, #FAFA17, #FAFA17) no-repeat 0 0;
 }
-.current-line-xrc-playing-1 {
+.current-line-xrc-playing-ff1493 {
     background:#fff -webkit-linear-gradient(left, #ff1493, #ff1493) no-repeat 0 0;
 }
-.current-line-xrc-playing-2 {
+.current-line-xrc-playing-adff2f {
     background:#fff -webkit-linear-gradient(left, #adff2f, #adff2f) no-repeat 0 0;
 }
-.current-line-xrc-playing-3 {
+.current-line-xrc-playing-d731f8 {
     background:#fff -webkit-linear-gradient(left, #d731f8, #d731f8) no-repeat 0 0;
 }
-.current-line-xrc-playing-4 {
+.current-line-xrc-playing-00CC65 {
     background:#fff -webkit-linear-gradient(left, #00CC65, #00CC65) no-repeat 0 0;
 }
 .current-song-played, .current-song-played a {
@@ -608,8 +739,6 @@ a:hover {
     top: 18px;
     font-size: 1.1em;
     font-weight: bolder;
-    /* background-color: gold; */
-    /* background-color: #1b2426; */
     background: transparent;
     filter: brightness(75%);
     border-radius: 10%;
@@ -666,31 +795,13 @@ a:hover {
 	background-color: #BCBCBC;
 }
 
-.menu_button:hover {
-    cursor: pointer;
-    color: #fff;
-}
-
-/* for menu */
-.menu-item {
-    margin-bottom: 10px;
-}
-.menu-title {
-    cursor: pointer;
-}
-.menu-content {
-    display: none;
-}
-.menu-content.show {
-    display: block;
-    animation: fadeIn 0.3s ease-in-out;
-}
+/* 
 @keyframes fadeIn {
     0% { opacity: 0; }
     100% { opacity: 1; }
-}
+} */
 
-#menu-playmode {
+/* #menu-playmode {
     text-align: right;
     position: relative;
     right: 0;
@@ -705,7 +816,7 @@ a:hover {
     text-align: right;
     position: relative;
     right: 0;
-}
+} */
 
 .menu-title {
     width: auto;
@@ -729,6 +840,16 @@ a:hover {
     border-top: none;
     max-height: 200px;
     overflow-y: auto;
+}
+#search-results li {
+    position: relative;
+}
+#search-results span.searchResultAlbum {
+    position: absolute;
+    bottom: 0;
+    left: 45px;
+    font-size: 10px;
+    font-style: italic;
 }
 
 #search-results::-webkit-scrollbar-track
@@ -790,6 +911,9 @@ a:hover {
     width: 95%;
 }
 
+#audioPlayer0 {
+    color: #1296DB;
+}
 .audio-wrapper {
     text-align: center;
     background-color: #fcfcfc;
@@ -826,13 +950,92 @@ a:hover {
 .audio-right p {
     font-size: 15px;
     height: 35%;
-    margin: 12px 0 2px 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 8px;
+    margin-bottom: 2px;
+    /* margin: 12px 0 2px 0; */
 
-    /* 歌曲名称只显示在一行，超出部分显示为省略号 */
+    /* only 1 line for songs' name */
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    max-width: 243px;   /* 要适配小屏幕手机，所以最大宽度先设小一点，后面js根据屏幕大小重新设置 */
+    max-width: 243px;
+}
+
+.audio-right #controlButtons {
+    position: relative;
+    top: -15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.audio-right button {
+    color: #1296DB;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+#volumeButton {
+    position: relative;
+}
+#volumeConfig {
+    position: absolute;
+    top: -200px;
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    right: calc(50% - 60px);
+}
+#volumeConfig div.ctrl {
+    background: #fff;
+    box-shadow: 5px 5px 5px 0 rgba(0,0,0,0.75);
+    width: 50px;
+    height: 180px;
+    border-radius: 5px;
+}
+#volumeConfig svg {
+    position: relative;
+    top: -7px;
+}
+#volumeConfig div.dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    left: -3.5px;
+    top: -5px;
+    border-radius: 100%;
+    background: #1296DB;
+    transition: top 0s linear;
+}
+#volumeConfig div.bar {
+    position: absolute;
+    width: 3px;
+    height: 100%;
+    background: #1296DB;
+    transition: top 0s linear;
+    transition: height 0s linear;
+}
+#volumeConfig div.bar-bg {
+    height: 130px;
+    top: 10px;
+    width: 3px;
+    background: #999;
+    left: calc(50% - 2.5px);
+    position: relative;
+}
+#volumeConfig hr {
+    position: relative;
+    top: 10px;
+    width: 75%;
+}
+#volumeConfig div.percent {
+    text-align: center;
+    position: relative;
+    font-size: 18px;
+    text-align: center;
+    top: 5px;
 }
 
 .progress-bar-bg {
@@ -841,6 +1044,7 @@ a:hover {
     height: 3px;
     cursor: pointer;
     transition: height 200ms linear;
+    transition: width 0s linear;
 }
 .progress-bar-bg:hover {
     height: 6px;
@@ -867,6 +1071,7 @@ a:hover {
     margin-top: -5px;
     margin-left: -5px;
     cursor: pointer;
+    transition: left 0s linear;
 }
 
 .audio-time {
