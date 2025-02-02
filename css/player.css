@@ -44,14 +44,32 @@ a:hover {
     color: #eee;
     text-decoration: underline;
 }
-.imageBg {
+html.imageBg {
     background: url(../img/bg.png) no-repeat center center fixed;
+    /* background: url(../music/90.webp) no-repeat center center fixed; */
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
 }
-.colorBg {
+:root {
+    --theme-color: #1296DB;
+    --halfBg-background-img: url("../music/1.webp");
+}
+html.halfBg::before {
+    opacity: 0.5;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--halfBg-background-img) no-repeat center center fixed;
+    background-size: cover;
+    filter: blur(20px) brightness(80%) contrast(130%) hue-rotate(-5deg) saturate(120%);
+    z-index: -1;
+}
+html.colorBg {
     background-image: none;
 }
 .wrapper {
@@ -172,6 +190,9 @@ a:hover {
 #bg_dark {
     background-color: #272822;
 }
+#bg_half {
+    background-color: #00CC65;
+}
 #playlist ol {
     /* height: 480px; */
     overflow: auto;
@@ -272,9 +293,10 @@ a:hover {
     left: 10px;
     top: 10px;
     background: #eee;
-    border: transparent;
+    border: none;
     border-radius: 10%;
     cursor: pointer;
+    color: #000;
 }
 #configDefaultButton {
     position: fixed;
@@ -283,9 +305,10 @@ a:hover {
     height: 25px;
     font-size: 18px;
     background: #eee;
-    border: transparent;
+    border: none;
     border-radius: 10%;
     cursor: pointer;
+    color: #000;
 }
 #config button:hover {
     filter: brightness(120%);
@@ -335,7 +358,7 @@ a:hover {
         z-index: 9999999999999;
         top: 10px;
         right: 10px;
-        background: transparent;
+        background: none;
         border: none;
         color: #999;
         transition: color 200ms linear;
@@ -538,7 +561,7 @@ a:hover {
         z-index: 9999999999999;
         bottom: 10px;
         right: 10px;
-        background: transparent;
+        background: none;
         border: none;
         color: #999;
         transition: color 200ms linear;
@@ -739,7 +762,7 @@ a:hover {
     top: 18px;
     font-size: 1.1em;
     font-weight: bolder;
-    background: transparent;
+    background: none;
     filter: brightness(75%);
     border-radius: 10%;
     border: none;
@@ -911,9 +934,6 @@ a:hover {
     width: 95%;
 }
 
-#audioPlayer0 {
-    color: #1296DB;
-}
 .audio-wrapper {
     text-align: center;
     background-color: #fcfcfc;
@@ -931,12 +951,16 @@ a:hover {
     height: 100%;
 }
 
-.audio-left svg {
-    width: 40px;
+.audio-left button {
+    background: none;
+    border: none;
+    color: var(--theme-color);
+    width: auto;
+    height: auto;
     position: relative;
-    top: 15px;
+    top: calc(50% - 20px);
     margin: 0;
-    display: initial;   /* 解除与app的样式冲突 */
+    display: initial;
     cursor: pointer;
 }
 
@@ -963,16 +987,32 @@ a:hover {
     max-width: 243px;
 }
 
-.audio-right #controlButtons {
+#controlButtons {
     position: relative;
     top: -15px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
+#controlButtons button:hover {
+    filter: brightness(120%);
+}
+#playbackRateButton {
+    height: 26px;
+    padding: 0;
+    width: 40px;
+    text-align: center;
+    font-size: 12px;
+    color: #999999;
+    border: 1px solid;
+    border-radius: 3px;
+}
+#playbackRateButton:hover {
+    color: var(--theme-color);
+}
 .audio-right button {
-    color: #1296DB;
-    background: transparent;
+    color: var(--theme-color);
+    background: none;
     border: none;
     cursor: pointer;
 }
@@ -980,44 +1020,84 @@ a:hover {
     position: relative;
 }
 #volumeConfig {
-    position: absolute;
     top: -200px;
+}
+#playbackRateConfig {
+    top: -200px;
+    width: auto;
+}
+#playbackRateConfig .bar-bg {
+    float: left;
+    left: 10px;
+}
+#playbackRateConfig .dot {
+    top: calc(50% - 5px);
+}
+#playbackRateConfig .bar {
+    top: 50%;
+    height: 50%;
+}
+#playbackRateConfig .flag {
+    float: right;
+    position: relative;
+    right: 30px;
+    width: auto;
+    height: 100%;
+    font-size: 1.1em;
+}
+#playbackRateConfig .flag .a1-5 {
+    position: absolute;
+    top: 0;
+}
+#playbackRateConfig .flag .a1-0 {
+    position: absolute;
+    top: calc(50% - calc(1.1em / 2));
+}
+#playbackRateConfig .flag .a0-5 {
+    position: absolute;
+    bottom: 0;
+}
+#playbackRateConfig .bar-bg {
+    height: 160px;
+}
+
+.progress {
+    position: absolute;
     width: auto;
     height: auto;
     display: flex;
     justify-content: center;
-    right: calc(50% - 60px);
 }
-#volumeConfig div.ctrl {
+.progress .ctrl {
     background: #fff;
     box-shadow: 5px 5px 5px 0 rgba(0,0,0,0.75);
     width: 50px;
     height: 180px;
     border-radius: 5px;
 }
-#volumeConfig svg {
+.progress svg {
     position: relative;
     top: -7px;
 }
-#volumeConfig div.dot {
+.progress .dot {
     position: absolute;
     width: 10px;
     height: 10px;
     left: -3.5px;
     top: -5px;
     border-radius: 100%;
-    background: #1296DB;
+    background: var(--theme-color);
     transition: top 0s linear;
 }
-#volumeConfig div.bar {
+.progress .bar {
     position: absolute;
     width: 3px;
     height: 100%;
-    background: #1296DB;
+    background: var(--theme-color);
     transition: top 0s linear;
     transition: height 0s linear;
 }
-#volumeConfig div.bar-bg {
+.progress .bar-bg {
     height: 130px;
     top: 10px;
     width: 3px;
@@ -1025,12 +1105,12 @@ a:hover {
     left: calc(50% - 2.5px);
     position: relative;
 }
-#volumeConfig hr {
+.progress hr {
     position: relative;
     top: 10px;
     width: 75%;
 }
-#volumeConfig div.percent {
+#volumeConfig.progress .percent {
     text-align: center;
     position: relative;
     font-size: 18px;

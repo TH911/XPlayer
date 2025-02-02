@@ -41,7 +41,7 @@ function playlist_hide(){
 
         //scroll to which is playing
         var playlist_ol = document.getElementById("playlist_ol");
-        var now = document.getElementById("playlist-" + PLAYER.currentIndex);
+        var now = document.getElementById(`playlist-${PLAYER.currentIndex}`);
         playlist_ol.scrollTo({
             top: Math.max(0,now.offsetTop - Math.floor(parseInt(playlist.clientHeight)/2)),
             behavior: 'smooth'
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if('documentPictureInPicture' in window){
         tool = 8 + 29.6+10;
     }
-    document.querySelector('.audio-right p').style.maxWidth = (maxWidth - tool) + 'px';
+    document.querySelector('.audio-right p').style.maxWidth = `${maxWidth - tool}px`;
 
     // 可能会有多个音频，逐个初始化音频控制事件
     var audios = document.getElementsByTagName('audio');
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
  */
 function initAudioEvent(index) {
     var audio = document.getElementsByTagName('audio')[index];
-    var audioPlayer = document.getElementById('audioPlayer' + index);
+    var audioPlayer = document.getElementById(`audioPlayer${index}`);
 
     // hack iOS which can't get duration.
     // update:define it in the json.
@@ -95,10 +95,10 @@ function initAudioEvent(index) {
 
     //Update the img
     audio.addEventListener('pause', function() {
-        audioPlayer.innerHTML = '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M6.271 5.055a.5.5 0 0 1 .52.038l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 6 10.5v-5a.5.5 0 0 1 .271-.445"/>';
+        audioPlayer.querySelector('svg').innerHTML = '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M6.271 5.055a.5.5 0 0 1 .52.038l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 6 10.5v-5a.5.5 0 0 1 .271-.445"/>';
     }, false);
     audio.addEventListener('play', function() {
-        audioPlayer.innerHTML = '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5m4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5"/>';
+        audioPlayer.querySelector('svg').innerHTML = '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5m4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5"/>';
     }, false);
     
     // play/pause when click
@@ -117,7 +117,7 @@ function initAudioEvent(index) {
 
     // change the time when click the progress bar
     // PS：DON'T USE CLICK，or The drag progress point event below may trigger here, and at this point, the value of e.offsetX is very small, which can cause the progress bar to pop back to the beginning (unbearable!!)
-    var progressBarBg = document.getElementById('progressBarBg' + index);
+    var progressBarBg = document.getElementById(`progressBarBg${index}`);
     progressBarBg.addEventListener('mousedown', function (event) {
 
         if (!audio.paused || audio.currentTime != 0) {
@@ -138,7 +138,7 @@ function initAudioEvent(index) {
  * @param {number} index 索引，表示第几个音频（从0开始）
  */
 function dragProgressDotEvent(audio, index) {
-    var dot = document.getElementById('progressDot' + index);
+    var dot = document.getElementById(`progressDot${index}`);
 
     var position = {
         oriOffestLeft: 0, // 移动开始时进度条的点距离进度条的偏移值
@@ -172,7 +172,7 @@ function dragProgressDotEvent(audio, index) {
             position.oriOffestLeft = dot.offsetLeft;
             position.oriX = event.touches ? event.touches[0].clientX : event.clientX; // 要同时适配mousedown和touchstart事件
             position.maxLeft = position.oriOffestLeft; // 向左最大可拖动距离
-            position.maxRight = document.getElementById('progressBarBg' + index).offsetWidth - position.oriOffestLeft; // 向右最大可拖动距离
+            position.maxRight = document.getElementById(`progressBarBg${index}`).offsetWidth - position.oriOffestLeft; // 向右最大可拖动距离
 
             // 禁止默认事件（避免鼠标拖拽进度点的时候选中文字）
             if (event && event.preventDefault) {
@@ -199,7 +199,7 @@ function dragProgressDotEvent(audio, index) {
             } else if (length < -position.maxLeft) {
                 length = -position.maxLeft;
             }
-            var progressBarBg = document.getElementById('progressBarBg' + index);
+            var progressBarBg = document.getElementById(`progressBarBg${index}`);
             var pgsWidth = parseFloat(window.getComputedStyle(progressBarBg, null).width.replace('px', ''));
             var rate = (position.oriOffestLeft + length) / pgsWidth;
             audio.currentTime = PLAYER.duration * rate;
@@ -221,9 +221,9 @@ function dragProgressDotEvent(audio, index) {
  */
 function updateProgress(audio, index) {
     var value = audio.currentTime / PLAYER.duration;
-    document.getElementById('progressBar' + index).style.width = value * 100 + '%';
-    document.getElementById('progressDot' + index).style.left = value * 100 + '%';
-    document.getElementById('audioCurTime' + index).innerText = transTime(audio.currentTime);
+    document.getElementById(`progressBar${index}`).style.width = `${value * 100}%`;
+    document.getElementById(`progressDot${index}`).style.left = `${value * 100}%`;
+    document.getElementById(`audioCurTime${index}`).innerText = transTime(audio.currentTime);
 }
 
 /**
@@ -237,9 +237,9 @@ function transTime(value) {
     var m = parseInt(value / 60);
     var s = parseInt(value % 60);
     if (h > 0) {
-        time = formatTime(h + ":" + m + ":" + s);
+        time = formatTime(`${h}:${m}:${s}`);
     } else {
-        time = formatTime(m + ":" + s);
+        time = formatTime(`${m}:${s}`);
     }
 
     return time;
@@ -255,10 +255,10 @@ function formatTime(value) {
     var s = value.split(':');
     var i = 0;
     for (; i < s.length - 1; i++) {
-        time += s[i].length == 1 ? ("0" + s[i]) : s[i];
+        time += s[i].length == 1 ? `0${s[i]}` : s[i];
         time += ":";
     }
-    time += s[i].length == 1 ? ("0" + s[i]) : s[i];
+    time += s[i].length == 1 ? `0${s[i]}` : s[i];
 
     return time;
 }
@@ -343,16 +343,16 @@ $(document).ready(function() {
 //change the playermode
 function playmode_change(mode){
     var mode2=localStorage.getItem("player_mode");
-    if(mode2!=null)document.getElementById("menu_" + localStorage.getItem("player_mode")).style.color = "#999";
+    if(mode2!=null)document.getElementById(`menu_${localStorage.getItem("player_mode")}`).style.color = "#999";
     localStorage.setItem("player_mode",mode);
-    document.getElementById("menu_" + mode).style.color = "#fff";
+    document.getElementById(`menu_${mode}`).style.color = "#fff";
 }
 
 function font_change(font){
     var font2 = localStorage.getItem("player_font");
-    if(font2!=null)document.getElementById("menu_font_" + font2).style.color = "#999";
+    if(font2!=null)document.getElementById(`menu_font_${font2}`).style.color = "#999";
     localStorage.setItem("player_font",font);
-    document.getElementById("menu_font_" + font).style.color = "#fff";
+    document.getElementById(`menu_font_${font}`).style.color = "#fff";
     var lyricWrapper = document.getElementById("lyricWrapper");
     lyricWrapper.style.fontFamily = font;
     
@@ -375,10 +375,10 @@ function font_change(font){
 function lyricColorMode_change(mode){
     var mode2=localStorage.getItem("lyricColorMode");
     if(mode2!=null){
-        document.getElementById("menu_lyricColorMode_" + localStorage.getItem("lyricColorMode")).style.color = "#999";
+        document.getElementById(`menu_lyricColorMode_${localStorage.getItem("lyricColorMode")}`).style.color = "#999";
     }
     localStorage.setItem("lyricColorMode",mode);
-    document.getElementById("menu_lyricColorMode_" + mode).style.color = "#fff";
+    document.getElementById(`menu_lyricColorMode_${mode}`).style.color = "#fff";
 
     if(mode == "choose"){
         var lyricColor = localStorage.getItem("lyricColor");
@@ -411,7 +411,7 @@ function showToast(message) {
 }
 
 function lyricColor_change(color){
-    var that = document.getElementById("menu_lyricColor_" + color);
+    var that = document.getElementById(`menu_lyricColor_${color}`);
     if(!localStorage.getItem("lyricColor")){
         localStorage.setItem("lyricColor","FAFA17,ff1493,adff2f,d731f8,00CC65");
     }
@@ -455,7 +455,7 @@ function lyricColor_change(color){
         }
         var string = list[0];
         for(var i = 1 ; i < list.length ; i++){
-            string += ',' + list[i];
+            string += `,${list[i]}`;
         }
         localStorage.setItem("lyricColor",string);
     }else{
@@ -488,7 +488,7 @@ pipWindowMode.prototype = {
         if(!this.check())return;
 
         // change the color of the desktopLyricButton.
-        PLAYER.desktopLyricButton.style.color = '#' + PLAYER.lyricStyleList[PLAYER.lyricStyle];
+        PLAYER.desktopLyricButton.style.color = `#${PLAYER.lyricStyleList[PLAYER.lyricStyle]}`;
 
         this.fillMode = fillMode;
         this.window = await window.documentPictureInPicture.requestWindow({
@@ -496,12 +496,13 @@ pipWindowMode.prototype = {
             height: 52
         });
         this.document = this.window.document;
+        this.document.body.title = document.title;
         this.open = true;
         var that = this;
 
         if(this.fillMode == "xrc"){
             this.window.addEventListener('resize', function(){
-                var node = document.getElementById('line-' + PLAYER.lastXrcLetterI);
+                var node = document.getElementById(`line-${PLAYER.lastXrcLetterI}`);
                 that.fillXrc(node);
             });
         }else{
@@ -511,23 +512,7 @@ pipWindowMode.prototype = {
             });
         }
 
-        this.document.addEventListener("keydown",function(e) {
-            if(e.key == 'p'){
-                that.open=false;
-                that.window.close();
-            }
-            if(e.key == ' '){
-                if(PLAYER.audio.paused)PLAYER.audio.play();
-                else PLAYER.audio.pause();
-            }
-            if(e.code == 'ArrowUp')PLAYER.playPrev();
-            else if(e.code == 'ArrowDown')PLAYER.playNext();
-            else if(e.code == 'ArrowLeft'){
-                PLAYER.audio.currentTime-=Math.min(PLAYER.audio.currentTime,10);
-            }else if(e.code == 'ArrowRight'){
-                PLAYER.audio.currentTime+=10;
-            }
-        });
+        this.document.addEventListener("keydown" ,PLAYER.keyboardCtrl ,false);
 
         this.window.addEventListener('unload',function() {
             that.open = false;
@@ -547,7 +532,7 @@ pipWindowMode.prototype = {
 
         this.document.head.innerHTML = document.head.innerHTML;
         var link = document.createElement('link');
-        link.innerHTML = '<link rel="stylesheet" href="css/pipWindow.min.css">'
+        link.innerHTML = '<link rel="stylesheet" href="css/pipWindow.css">'
         this.document.head.appendChild(link);
         this.document.body.style.fontFamily = localStorage.getItem("player_font");
 
@@ -575,11 +560,11 @@ pipWindowMode.prototype = {
                     }
                 }
             }catch(error){
-                console.error("ERROR:" + error);
+                console.error(`ERROR:${error}`);
             }
         } else {
             try{
-                this.fillXrc(document.getElementById('line-' + PLAYER.lastXrcLetterI));
+                this.fillXrc(document.getElementById(`line-${PLAYER.lastXrcLetterI}`));
             }catch{
 
             }
@@ -622,7 +607,7 @@ pipWindowMode.prototype = {
         // pipWindow
         tool.style.fontSize = Math.min(Math.floor((this.window.innerWidth-40) / text_length),this.window.innerHeight-20) + 'px';
 
-        tool.style.color = '#' + PLAYER.lyricStyleList[PLAYER.lyricStyle];
+        tool.style.color = `#${PLAYER.lyricStyleList[PLAYER.lyricStyle]}`;
         this.document.body.innerHTML = '';
         // 114514
         tool.style.textAlign = "center";
@@ -631,7 +616,6 @@ pipWindowMode.prototype = {
         if(text_translate != null){
             var text_translate_length = this.textLength(text_translate);
             tool.style.fontSize = Math.min(Math.min(Math.floor((this.window.innerWidth-40) / text_length),(this.window.innerHeight-20)/2) , Math.min(Math.floor((this.window.innerWidth-40) / text_translate_length),this.window.innerHeight-20)) + 'px';
-            tool.textContent = text + '' + text_translate;
             var tool_text = document.createElement('div');
             var tool_text_translate = document.createElement('div');
             tool.style.lineHeight = Math.floor(this.window.innerHeight/2) + 'px';
@@ -649,7 +633,7 @@ pipWindowMode.prototype = {
         if(!this.open){
             return;
         }
-        this.document.body.classList.add('current-line-xrc-' + PLAYER.lyricStyleList[PLAYER.lyricStyle]);
+        this.document.body.classList.add(`current-line-xrc-${PLAYER.lyricStyleList[PLAYER.lyricStyle]}`);
         this.document.body.innerHTML = '';
         var newNode = node.cloneNode(2);
         if(PLAYER.lyricTranslate == null){
@@ -683,7 +667,7 @@ pipWindowMode.prototype = {
                 newNode2.style.lineHeight = Math.floor(this.window.innerHeight/2*0.8) + 'px';
                 this.document.body.appendChild(newNode2);
             } else{
-                this.document.body.classList.add('current-line-xrc-' + PLAYER.lyricStyleList[PLAYER.lyricStyle]);
+                this.document.body.classList.add(`current-line-xrc-${PLAYER.lyricStyleList[PLAYER.lyricStyle]}`);
                 this.document.body.innerHTML = '';
                 var fontSize = this.window.innerHeight - 20;
                 newNode.style.fontSize = fontSize + 'px';
@@ -699,7 +683,7 @@ pipWindowMode.prototype = {
             
         }
         
-        var middleNode = this.document.getElementById('line-' + PLAYER.lastXrcLetterI + '-' + PLAYER.lastXrcLetterJ);
+        var middleNode = this.document.getElementById(`line-${PLAYER.lastXrcLetterI}-${PLAYER.lastXrcLetterJ}`);
         var distance = middleNode.offsetLeft + this.textLength(middleNode.textContent) * fontSize - this.window.innerWidth/2;
         this.window.scrollTo({
             left: distance,
@@ -762,102 +746,209 @@ window.addEventListener('load', function(){
     });
 
     if(lyricColorMode == 'choose'){
-        document.getElementById('menu_lyricColor_' + lyricColorList).classList.add('choosed');
+        document.getElementById(`menu_lyricColor_${lyricColorList}`).classList.add('choosed');
     }
 
-    
-    // button under prorgess.
-    var volumeButton = document.getElementById("volumeButton");
-    var volumeConfig = document.getElementById("volumeConfig");
-    // hack:click the button will make down()'s check true,and this second,and it can't close.
-    var displayNoneSet = false;
-    volumeButton.addEventListener('click', function(){
-        if(volumeConfig.style.display == 'block'){
-            volumeConfig.style.display = 'none';
-        }else if(!displayNoneSet){
-            volumeConfig.style.display = 'block';
-        }else{
-            displayNoneSet = false;
-        }
-    });
-    var progress = volumeConfig.getElementsByClassName("bar-bg")[0];
-    progress.addEventListener('click', event => {
+    (function(){
+        // button under prorgess.
+        var volumeButton = document.getElementById("volumeButton");
+        var volumeConfig = document.getElementById("volumeConfig");
+        // hack:click the button will make down()'s check true,and this second,and it can't close.
+        var displayNoneSet = false;
+        volumeButton.addEventListener('click', function(){
+            if(volumeConfig.style.display == 'block'){
+                volumeConfig.style.display = 'none';
+            }else if(!displayNoneSet){
+                volumeConfig.style.display = 'block';
+            }else{
+                displayNoneSet = false;
+            }
+        });
+        var progress = volumeConfig.getElementsByClassName("bar-bg")[0];
+        progress.addEventListener('click', event => {
 
-        var offsetTop = event.clientY - progress.getBoundingClientRect().top;
-        var height = parseFloat(window.getComputedStyle(progress, null).height.replace('px'));
-        var ratio = (height - offsetTop) / height;
-        PLAYER.audio.volume = ratio;
-        if(ratio == 0){
-            document.querySelector("#volumeButton svg").innerHTML = '<path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06M6 5.04 4.312 6.39A.5.5 0 0 1 4 6.5H2v3h2a.5.5 0 0 1 .312.11L6 10.96zm7.854.606a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0"/>';
-        }else if(ratio == 1){
-            document.querySelector("#volumeButton svg").innerHTML = '<path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.48 7.48 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.48 5.48 0 0 1 11.025 8a5.48 5.48 0 0 1-1.61 3.89z"/><path d="M10.025 8a4.5 4.5 0 0 1-1.318 3.182L8 10.475A3.5 3.5 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.5 4.5 0 0 1 10.025 8M7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11"/>';
-        }else{
-            document.querySelector("#volumeButton svg").innerHTML = '<path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11M12.025 8a4.5 4.5 0 0 1-1.318 3.182L10 10.475A3.5 3.5 0 0 0 11.025 8 3.5 3.5 0 0 0 10 5.525l.707-.707A4.5 4.5 0 0 1 12.025 8"/>';
+            var offsetTop = event.clientY - progress.getBoundingClientRect().top;
+            var height = parseFloat(window.getComputedStyle(progress, null).height.replace('px'));
+            var ratio = (height - offsetTop) / height;
+            PLAYER.audio.volume = ratio;
+            PLAYER.volume = ratio;
+            volumeButton.title = `调节音量 ${Math.round(ratio*100)}%\n增大：Ctrl + Up\n减小：Ctrl + Down`;
+            if(ratio == 0){
+                document.querySelector("#volumeButton svg").innerHTML = '<path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06M6 5.04 4.312 6.39A.5.5 0 0 1 4 6.5H2v3h2a.5.5 0 0 1 .312.11L6 10.96zm7.854.606a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0"/>';
+            }else if(ratio == 1){
+                document.querySelector("#volumeButton svg").innerHTML = '<path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.48 7.48 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.48 5.48 0 0 1 11.025 8a5.48 5.48 0 0 1-1.61 3.89z"/><path d="M10.025 8a4.5 4.5 0 0 1-1.318 3.182L8 10.475A3.5 3.5 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.5 4.5 0 0 1 10.025 8M7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11"/>';
+            }else{
+                document.querySelector("#volumeButton svg").innerHTML = '<path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11M12.025 8a4.5 4.5 0 0 1-1.318 3.182L10 10.475A3.5 3.5 0 0 0 11.025 8 3.5 3.5 0 0 0 10 5.525l.707-.707A4.5 4.5 0 0 1 12.025 8"/>';
+            }
+            var bar = progress.getElementsByClassName('bar')[0];
+            bar.style.height = `${ratio*100}%`;
+            volumeConfig.getElementsByClassName("percent")[0].textContent = `${Math.round(ratio*100)}%`;
+            bar.style.top = `${(1-ratio)*100}%`;
+            var dot = volumeConfig.getElementsByClassName('dot')[0];
+            dot.style.top = `calc(${(1-ratio)*100}% - 5px)`;
+        });
+        
+        var mouseDown = false,select = null;
+        function down(event){
+            if(volumeConfig.style.display != 'block'){
+                return;
+            }
+            if(!progress.contains(event.target)){
+                document.body.style.userSelect = select;
+                document.body.style.webkitUserSelect = select;
+                mouseDown = false;
+                displayNoneSet = true;
+                volumeConfig.style.display = 'none';
+                return;
+            }
+            select = document.body.style.userSelect || document.body.style.webkitUserSelect;
+            document.body.style.userSelect = 'none';
+            document.body.style.webkitUserSelect = 'none';
+            mouseDown = true;
         }
-        var bar = progress.getElementsByClassName('bar')[0];
-        bar.style.height = ratio*100 + '%';
-        volumeConfig.getElementsByClassName("percent")[0].textContent = `${Math.round(ratio*100)}%`;
-        bar.style.top = offsetTop + 'px';
-        var dot = volumeConfig.getElementsByClassName('dot')[0];
-        dot.style.top = `${offsetTop-5}px`;
-    });
-    
-    var mouseDown = false,select = null;
-    function down(event){
-        if(volumeConfig.style.display != 'block'){
-            return;
+        function move(event){
+            event.preventDefault();
+
+            if(!mouseDown){
+                return;
+            }
+
+            var offsetTop = (event.touches ? event.touches[0].clientY : event.clientY) - progress.getBoundingClientRect().top;
+            var height = parseFloat(window.getComputedStyle(progress, null).height.replace('px'));
+            var ratio = (height - offsetTop) / height;
+            var bar = volumeConfig.getElementsByClassName('bar')[0];
+            ratio = Math.max(ratio,0);
+            ratio = Math.min(ratio,1);
+            PLAYER.audio.volume = ratio;
+            PLAYER.volume = ratio;
+            volumeButton.title = `调节音量 ${Math.round(ratio*100)}%\n增大：Ctrl + Up\n减小：Ctrl + Down`;
+            if(ratio == 0){
+                document.querySelector("#volumeButton svg").innerHTML = '<path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06M6 5.04 4.312 6.39A.5.5 0 0 1 4 6.5H2v3h2a.5.5 0 0 1 .312.11L6 10.96zm7.854.606a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0"/>';
+            }else if(ratio == 1){
+                document.querySelector("#volumeButton svg").innerHTML = '<path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.48 7.48 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.48 5.48 0 0 1 11.025 8a5.48 5.48 0 0 1-1.61 3.89z"/><path d="M10.025 8a4.5 4.5 0 0 1-1.318 3.182L8 10.475A3.5 3.5 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.5 4.5 0 0 1 10.025 8M7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11"/>';
+            }else{
+                document.querySelector("#volumeButton svg").innerHTML = '<path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11M12.025 8a4.5 4.5 0 0 1-1.318 3.182L10 10.475A3.5 3.5 0 0 0 11.025 8 3.5 3.5 0 0 0 10 5.525l.707-.707A4.5 4.5 0 0 1 12.025 8"/>';
+            }
+            bar.style.height = `${ratio*100}%`;
+            volumeConfig.getElementsByClassName("percent")[0].textContent = `${Math.round(ratio*100)}%`;
+            bar.style.top = `${(1-ratio)*100}%`;
+            var dot = volumeConfig.getElementsByClassName('dot')[0];
+            dot.style.top = `calc(${(1-ratio)*100}% - 5px)`;
         }
-        if(!progress.contains(event.target)){
+        function up(){
             document.body.style.userSelect = select;
             document.body.style.webkitUserSelect = select;
             mouseDown = false;
-            displayNoneSet = true;
-            volumeConfig.style.display = 'none';
-            return;
         }
-        select = document.body.style.userSelect || document.body.style.webkitUserSelect;
-        document.body.style.userSelect = 'none';
-        document.body.style.webkitUserSelect = 'none';
-        mouseDown = true;
-    }
-    function move(event){
-        event.preventDefault();
+        document.addEventListener('mousedown', down);
+        document.addEventListener('mousemove', move);
+        document.addEventListener('mouseup', up);
+        document.addEventListener('touchstart', down);
+        document.addEventListener('touchmove', move);
+        document.addEventListener('touchend', up);
+    })();
 
-        if(!mouseDown){
-            return;
-        }
+    // button ctrl playbackRate.
+    (function(){
+        // button under prorgess.
+        var playbackRateButton = document.getElementById("playbackRateButton");
+        var playbackRateConfig = document.getElementById("playbackRateConfig");
+        // hack:click the button will make down()'s check true,and this second,and it can't close.
+        var displayNoneSet = false;
+        playbackRateButton.addEventListener('click', function(){
+            if(playbackRateConfig.style.display == 'block'){
+                playbackRateConfig.style.display = 'none';
+            }else if(!displayNoneSet){
+                playbackRateConfig.style.display = 'block';
+            }else{
+                displayNoneSet = false;
+            }
+        });
+        var progress = playbackRateConfig.getElementsByClassName("bar-bg")[0];
+        progress.addEventListener('click', event => {
 
-        var offsetTop = (event.touches ? event.touches[0].clientY : event.clientY) - progress.getBoundingClientRect().top;
-        var height = parseFloat(window.getComputedStyle(progress, null).height.replace('px'));
-        var ratio = (height - offsetTop) / height;
-        var bar = volumeConfig.getElementsByClassName('bar')[0];
-        ratio = Math.max(ratio,0);
-        ratio = Math.min(ratio,1);
-        PLAYER.audio.volume = ratio;
-        if(ratio == 0){
-            document.querySelector("#volumeButton svg").innerHTML = '<path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06M6 5.04 4.312 6.39A.5.5 0 0 1 4 6.5H2v3h2a.5.5 0 0 1 .312.11L6 10.96zm7.854.606a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0"/>';
-        }else if(ratio == 1){
-            document.querySelector("#volumeButton svg").innerHTML = '<path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.48 7.48 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.48 5.48 0 0 1 11.025 8a5.48 5.48 0 0 1-1.61 3.89z"/><path d="M10.025 8a4.5 4.5 0 0 1-1.318 3.182L8 10.475A3.5 3.5 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.5 4.5 0 0 1 10.025 8M7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11"/>';
-        }else{
-            document.querySelector("#volumeButton svg").innerHTML = '<path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11M12.025 8a4.5 4.5 0 0 1-1.318 3.182L10 10.475A3.5 3.5 0 0 0 11.025 8 3.5 3.5 0 0 0 10 5.525l.707-.707A4.5 4.5 0 0 1 12.025 8"/>';
+            var offsetTop = event.clientY - progress.getBoundingClientRect().top;
+            offsetTop = Math.round(offsetTop / 8) * 8;
+            var height = parseFloat(window.getComputedStyle(progress, null).height.replace('px'));
+            var ratio = (height - offsetTop) / height;
+            PLAYER.audio.playbackRate = ratio + 0.5;
+            PLAYER.playbackRate = ratio + 0.5;
+            var tmp = (Math.round((ratio+0.5)*100)/100).toString();
+            while(tmp.length < 4){
+                tmp += '0';
+            }
+            if(tmp == '1000'){
+                playbackRateButton.textContent = "倍速";
+            }else{
+                playbackRateButton.textContent = `${tmp}x`;
+            }
+            var bar = progress.getElementsByClassName('bar')[0];
+            bar.style.height = `${ratio*100}%`;
+            bar.style.top = `${(1-ratio)*100}%`;
+            var dot = playbackRateConfig.getElementsByClassName('dot')[0];
+            dot.style.top = `calc(${(1-ratio)*100}% - 5px)`;
+        });
+        
+        var mouseDown = false,select = null;
+        function down(event){
+            if(playbackRateConfig.style.display != 'block'){
+                return;
+            }
+            if(!progress.contains(event.target)){
+                document.body.style.userSelect = select;
+                document.body.style.webkitUserSelect = select;
+                mouseDown = false;
+                displayNoneSet = true;
+                playbackRateConfig.style.display = 'none';
+                return;
+            }
+            select = document.body.style.userSelect || document.body.style.webkitUserSelect;
+            document.body.style.userSelect = 'none';
+            document.body.style.webkitUserSelect = 'none';
+            mouseDown = true;
         }
-        bar.style.height = `${ratio*100}%`;
-        volumeConfig.getElementsByClassName("percent")[0].textContent = `${Math.round(ratio*100)}%`;
-        bar.style.top = `${(1-ratio)*100}%`;
-        var dot = volumeConfig.getElementsByClassName('dot')[0];
-        dot.style.top = `calc(${(1-ratio)*100}% - 5px)`;
-    }
-    function up(){
-        document.body.style.userSelect = select;
-        document.body.style.webkitUserSelect = select;
-        mouseDown = false;
-    }
-    document.addEventListener('mousedown', down);
-    document.addEventListener('mousemove', move);
-    document.addEventListener('mouseup', up);
-    document.addEventListener('touchstart', down);
-    document.addEventListener('touchmove', move);
-    document.addEventListener('touchend', up);
+        function move(event){
+            event.preventDefault();
+
+            if(!mouseDown){
+                return;
+            }
+
+            var offsetTop = (event.touches ? event.touches[0].clientY : event.clientY) - progress.getBoundingClientRect().top;
+            offsetTop = Math.round(offsetTop / 8) * 8;
+            var height = parseFloat(window.getComputedStyle(progress, null).height.replace('px'));
+            var ratio = (height - offsetTop) / height;
+            ratio = Math.max(ratio , 0);
+            ratio = Math.min(ratio , 1);
+            PLAYER.audio.playbackRate = ratio + 0.5;
+            PLAYER.playbackRate = ratio + 0.5;
+            var tmp = (Math.round((ratio+0.5)*100)/100).toString();
+            while(tmp.length < 4){
+                tmp += '0';
+            }
+            if(tmp == '1000'){
+                playbackRateButton.textContent = "倍速";
+            }else{
+                playbackRateButton.textContent = `${tmp}x`;
+            }
+            var bar = progress.getElementsByClassName('bar')[0];
+            bar.style.height = `${ratio*100}%`;
+            bar.style.top = `${(1-ratio)*100}%`;
+            var dot = playbackRateConfig.getElementsByClassName('dot')[0];
+            dot.style.top = `calc(${(1-ratio)*100}% - 5px)`;
+        }
+        function up(){
+            document.body.style.userSelect = select;
+            document.body.style.webkitUserSelect = select;
+            mouseDown = false;
+        }
+        document.addEventListener('mousedown', down);
+        document.addEventListener('mousemove', move);
+        document.addEventListener('mouseup', up);
+        document.addEventListener('touchstart', down);
+        document.addEventListener('touchmove', move);
+        document.addEventListener('touchend', up);
+    })();
 
     // display the button to control desktop lyric.
     if('documentPictureInPicture' in window){
@@ -966,7 +1057,7 @@ function mainRGB(img) {
         var r = data[i];
         var g = data[i + 1];
         var b = data[i + 2];
-        var key = r + ',' + g + ',' + b;
+        var key = `${r},${g},${b}`;
         if (!colors[key]) {
             colors[key] = {count: 0, color: key};
         }
@@ -983,7 +1074,7 @@ function mainRGB(img) {
             maxColorKey = colors[key].color;
         }
     }
-    return "rgb(" + maxColorKey + ")";
+    return `rgb(${maxColorKey})`;
 }
 
 var Selected = function() {
@@ -1022,6 +1113,8 @@ var Selected = function() {
     this.audio_album = [];
     this.duration = 0;
     this.audio_duration = [];
+    this.volume = 1;
+    this.playbackRate = 1;
 };
 
 Selected.prototype = {
@@ -1080,7 +1173,7 @@ Selected.prototype = {
             that.ending();
         }
         this.audio.onerror = function(e) {
-            console.error("audio load error:" + e);
+            console.error(`audio load error:${e}`);
             var audioErrorCount = sessionStorage.getItem("audioErrorCount");
             if(audioErrorCount == null)audioErrorCount=0;
             if(++audioErrorCount<=2)that.play(that.currentIndex+1);
@@ -1117,10 +1210,10 @@ Selected.prototype = {
                 if(that.lyric){
                     for (var i = 0 ; i < that.lyric.length; i++) {
                         var lyricInline = that.lyric[i];
-                        document.getElementById('line-' + i).className = '';
+                        document.getElementById(`line-${i}`).className = '';
                         //find the line                            
                         for(var j = 0 ; j < lyricInline.length ; j++){
-                            var letter = document.getElementById('line-' + i + '-' + j);
+                            var letter = document.getElementById(`line-${i}-${j}`);
                             letter.style.animationName = '';
                             letter.style.animationDuration = '';
                             letter.style.animationTimingFunction = ''; 
@@ -1129,7 +1222,7 @@ Selected.prototype = {
                     }
                 }
             }catch(error){
-                console.error("ERROR:" + error);
+                console.error(`ERROR:${error}`);
             }
 
             if(item.getAttribute('lyric-mode') == "translate"){
@@ -1160,17 +1253,7 @@ Selected.prototype = {
         });
 
         //enable keyboard control , spacebar to change the song
-        window.addEventListener('keydown', function(e) {
-            if(e.code == 'ArrowUp')that.playPrev();
-            else if(e.code == 'ArrowDown')that.playNext();
-            else if(e.code == 'ArrowLeft'){
-                var Song = this.document.getElementById("audio");
-                Song.currentTime-=Math.min(Song.currentTime,10);
-            }else if(e.code == 'ArrowRight'){
-                var Song = this.document.getElementById("audio");
-                Song.currentTime+=10;
-            }
-        }, false);
+        window.addEventListener('keydown', this.keyboardCtrl, false);
 
         var bgMode = localStorage.getItem("bgMode");
         if(bgMode == null) {
@@ -1187,6 +1270,10 @@ Selected.prototype = {
         document.getElementById('bg_pic').addEventListener('click', function() {
             document.getElementsByTagName('html')[0].className = 'imageBg';
             localStorage.setItem("bgMode","imageBg");
+        });
+        document.getElementById('bg_half').addEventListener('click', function() {
+            document.getElementsByTagName('html')[0].className = 'halfBg';
+            localStorage.setItem("bgMode","halfBg");
         });
 
         //initially start from a random song
@@ -1209,15 +1296,15 @@ Selected.prototype = {
             if(that.lyricMode == 'xrc'){
                 try{
                     if(that.lastXrcLetterI != null) {
-                        var letter = document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                        var letter = document.getElementById(`line-${that.lastXrcLetterI}-${that.lastXrcLetterJ}`);
                         letter.style.animationPlayState = "paused";
                         if(pipWindow.open){
-                            var letter = pipWindow.document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                            var letter = pipWindow.document.getElementById(`line-${that.lastXrcLetterI}-${that.lastXrcLetterJ}`);
                             letter.style.animationPlayState = "paused";
                         }
                     }
                 }catch(error){
-                    console.error("ERROR:" + error);
+                    console.error(`ERROR:${error}`);
                 }
             }
             that.cover_img.classList.add("paused");
@@ -1230,15 +1317,15 @@ Selected.prototype = {
             if(that.lyricMode == 'xrc'){
                 try{
                     if(that.lastXrcLetterI) {
-                        var letter = document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                        var letter = document.getElementById(`line-${that.lastXrcLetterI}-${that.lastXrcLetterJ}`);
                         letter.style.animationPlayState = "running";
                         if(pipWindow.open){
-                            var letter = pipWindow.document.getElementById('line-' + that.lastXrcLetterI + '-' + that.lastXrcLetterJ);
+                            var letter = pipWindow.document.getElementById(`line-${that.lastXrcLetterI}-${that.lastXrcLetterJ}`);
                             letter.style.animationPlayState = "running";
                         }
                     }
                 }catch(error){
-                    console.error("ERROR:" + error);
+                    console.error(`ERROR:${error}`);
                 }
             }
             that.cover_img.classList.remove("paused");
@@ -1271,6 +1358,79 @@ Selected.prototype = {
 
         this.play(randomSong);
     },
+    keyboardCtrl: function(e) {
+        var that = PLAYER;
+        if(e.ctrlKey){
+            function addVolume(add){
+                var volumeConfig = document.getElementById("volumeConfig");
+                var progress = volumeConfig.getElementsByClassName("bar-bg")[0];
+                var ratio = Math.max(Math.min(that.audio.volume + add , 1) , 0);
+                that.audio.volume = ratio;
+                that.volume = ratio;
+                volumeButton.title = `调节音量 ${Math.round(ratio*100)}%\n增大：Ctrl + Up\n减小：Ctrl + Down`;
+                if(ratio == 0){
+                    document.querySelector("#volumeButton svg").innerHTML = '<path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06M6 5.04 4.312 6.39A.5.5 0 0 1 4 6.5H2v3h2a.5.5 0 0 1 .312.11L6 10.96zm7.854.606a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0"/>';
+                }else if(ratio == 1){
+                    document.querySelector("#volumeButton svg").innerHTML = '<path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.48 7.48 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.48 5.48 0 0 1 11.025 8a5.48 5.48 0 0 1-1.61 3.89z"/><path d="M10.025 8a4.5 4.5 0 0 1-1.318 3.182L8 10.475A3.5 3.5 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.5 4.5 0 0 1 10.025 8M7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11"/>';
+                }else{
+                    document.querySelector("#volumeButton svg").innerHTML = '<path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11M12.025 8a4.5 4.5 0 0 1-1.318 3.182L10 10.475A3.5 3.5 0 0 0 11.025 8 3.5 3.5 0 0 0 10 5.525l.707-.707A4.5 4.5 0 0 1 12.025 8"/>';
+                }
+                var bar = progress.getElementsByClassName('bar')[0];
+                bar.style.height = ratio*100 + '%';
+                volumeConfig.getElementsByClassName("percent")[0].textContent = `${Math.round(ratio*100)}%`;
+                bar.style.top = `${(1-ratio)*100}%`;
+                var dot = volumeConfig.getElementsByClassName('dot')[0];
+                dot.style.top = `calc(${(1-ratio)*100}% - 5px)`;
+            }
+            if(e.code == 'ArrowUp'){
+                addVolume(0.1);
+            }else if(e.code == 'ArrowDown'){
+                addVolume(-0.1);
+            }
+        }else if(e.altKey){
+            function addPlaybackRate(add){
+                var playbackRateButton = document.getElementById("playbackRateButton");
+                var playbackRateConfig = document.getElementById("playbackRateConfig");
+                var progress = playbackRateConfig.getElementsByClassName("bar-bg")[0];
+                var dot = playbackRateConfig.getElementsByClassName('dot')[0];
+                var bar = progress.getElementsByClassName('bar')[0];
+                var ratio = that.audio.playbackRate - 0.5 + add;
+                ratio = Math.min(ratio , 1);
+                ratio = Math.max(ratio , 0);
+                PLAYER.audio.playbackRate = ratio + 0.5;
+                PLAYER.playbackRate = ratio + 0.5;
+                var tmp = (Math.round((ratio+0.5)*100)/100).toString();
+                while(tmp.length < 4){
+                    tmp += '0';
+                }
+                if(tmp == '1000'){
+                    playbackRateButton.textContent = "倍速";
+                }else{
+                    playbackRateButton.textContent = `${tmp}x`;
+                }
+                bar.style.height = `${ratio*100}%`;
+                bar.style.top = `${(1-ratio)*100}%`;
+                dot.style.top = `calc(${(1-ratio)*100}% - 5px)`;
+            }
+            if(e.code == 'ArrowUp'){
+                addPlaybackRate(0.05);
+            }else if(e.code == 'ArrowDown'){
+                addPlaybackRate(-0.05);
+            }
+        }else{
+            if(e.code == 'ArrowUp')that.playPrev();
+            else if(e.code == 'ArrowDown')that.playNext();
+            else if(e.code == 'ArrowLeft'){
+                that.audio.currentTime -= Math.min(Song.currentTime,10);
+            }else if(e.code == 'ArrowRight'){
+                that.audio.currentTime += 10;
+            }
+            // close volumeConfig
+            document.getElementById("volumeConfig").style.display = 'none';
+            // close playbackRateConfig
+            document.getElementById("playbackRateConfig").style.display = 'none';
+        }
+    },
     initialList: async function() {
         var that = this;
 
@@ -1286,13 +1446,13 @@ Selected.prototype = {
                 a = document.createElement('a');
             a.href = 'javascript:void(0)';
             a.dataset.name = v.lrc_name;
-            a.textContent = v.song_name + ' - ' + v.artist;
-            that.audio_name[v.lrc_name] = v.song_name;
-            that.audio_artist[v.lrc_name] = v.artist;
-            that.audio_album[v.lrc_name] = v.album;
-            that.audio_duration[v.lrc_name] = v.duration;
+            a.textContent = `${v.song_name} - ${v.artist}`;
+            that.audio_name[i] = v.song_name;
+            that.audio_artist[i] = v.artist;
+            that.audio_album[i] = v.album;
+            that.audio_duration[i] = v.duration;
             li.appendChild(a);
-            li.id = "playlist-" + i;
+            li.id = `playlist-${i}`;
             fragment.appendChild(li);
         });
         ol.appendChild(fragment);
@@ -1330,23 +1490,32 @@ Selected.prototype = {
         }else return false;
     },
     play: function(songName) {
+        var that = this;
+
+        document.documentElement.style.setProperty("--halfBg-background-img",`url(../music/${songName}.webp)`);
+        var prev = this.currentIndex - 1;
+        if(prev < 0){
+            prev = this.audio_name.length - 1;
+        }
+        document.getElementById("playPrevButton").title = `上一首 Up\n${this.audio_name[prev]} - ${this.audio_artist[prev]}`;
+        var next = this.currentIndex + 1;
+        if(next >= this.audio_name.length){
+            next = 0;
+        }
+        document.getElementById("playNextButton").title = `上一首 Up\n${this.audio_name[next]} - ${this.audio_artist[next]}`;
 
         this.lyricTranslate = null;
 
         // clean the flag of animation.
         this.lastXrcLetterI = this.lastXrcLetterJ = null;
 
-        var that = this;
 
         this.lyricContainer.textContent = 'loading song...';
-        this.audio.src = 'music/' + songName + '.mp3';
+        this.audio.src = `music/${songName}.mp3`;
 
-        this.cover_img.src = "music/" + songName + '.webp';
-        this.cover_disc_img.src = "music/" + songName + '.webp';
+        this.cover_img.src = `music/${songName}.webp`;
+        this.cover_disc_img.src = `music/${songName}.webp`;
 
-        // this.cover_img.classList.remove("rotate");
-        // this.cover_disc.classList.remove("rotate");
-        // this.cover_disc_img.classList.remove("rotate");
         this.disapointer.classList.remove("playing");
         this.disapointer.classList.remove("rotate");
         this.cover_img.addEventListener('load',function(){
@@ -1366,8 +1535,10 @@ Selected.prototype = {
         //first play,second load lyric
         //set this.audio.curremtTime will make canplay,so add this once when play.
         this.audio.addEventListener('canplay', function() {
+            that.audio.volume = that.volume;
+            that.audio.playbackRate = that.playbackRate;
             that.audio.play();
-            that.getLyric(that.audio.src.replace('.mp3', ''));
+            that.getLyric(`music/${songName}`);
         },{
             once: true
         });
@@ -1376,25 +1547,25 @@ Selected.prototype = {
 
         //scroll to which is playing
         var playlist_ol = document.getElementById("playlist_ol");
-        var now = document.getElementById("playlist-" + PLAYER.currentIndex);
+        var now = document.getElementById(`playlist-${PLAYER.currentIndex}`);
         playlist_ol.scrollTo({
             top: Math.max(0, Math.max(0,now.offsetTop - Math.floor(parseInt(this.playlist.clientHeight)/2))),
             behavior: 'smooth'
         });
 
-        document.getElementById("songinfo_audio").textContent = this.playlist.getElementsByTagName("li")[songName-1].textContent;
+        document.getElementById("songinfo_audio").textContent = document.getElementById(`playlist-${this.currentIndex}`).textContent;
         document.title = document.getElementById("songinfo_audio").textContent + " | XPlayer";
 
         if(pipWindow.open){
-            pipWindow.document.title = document.title;
+            pipWindow.document.body.title = document.title;
         }
 
-        document.getElementById('songinfo_name').textContent = this.audio_name[songName];
-        document.getElementById('songinfo_artist').textContent = "歌手: " + this.audio_artist[songName];
-        document.getElementById('songinfo_album').textContent = "专辑: " + this.audio_album[songName];
-        this.duration = this.audio_duration[songName];
+        document.getElementById('songinfo_name').textContent = this.audio_name[this.currentIndex];
+        document.getElementById('songinfo_artist').textContent = `歌手: ${this.audio_artist[this.currentIndex]}`;
+        document.getElementById('songinfo_album').textContent = `专辑: ${this.audio_album[this.currentIndex]}`;
+        this.duration = this.audio_duration[this.currentIndex];
 
-        this.mediaSessionAPI(this.audio_name[this.currentIndex+1],' ');
+        this.mediaSessionAPI(this.audio_name[this.currentIndex],' ');
 
         var screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
         this.lyricContainer.style.top = Math.floor((screenHeight-100)*0.4);
@@ -1403,7 +1574,7 @@ Selected.prototype = {
         this.lyricStyle = 4;
         this.lyricStyle = Math.floor(Math.random() * this.lyricStyleList.length);
         if(this.desktopLyricButton.style.color){
-            this.desktopLyricButton.style.color = '#' + this.lyricStyleList[this.lyricStyle];
+            this.desktopLyricButton.style.color = `#${this.lyricStyleList[this.lyricStyle]}`;
         }
         //1145141919810
     },
@@ -1535,7 +1706,7 @@ Selected.prototype = {
         lyric.forEach(function(v, i, a) {
             var line_p = document.createElement('p');
             var line = document.createElement('span');
-            line.id = 'line-' + i;
+            line.id = `line-${i}`;
             line.textContent = v[1];
             line.classList.add("lyric-line");
             line.style.backgroundClip = "text";
@@ -1580,7 +1751,7 @@ Selected.prototype = {
         for(var i = 0;i < lyric.length;i++){
             var line_p = document.createElement('p');
             var line = document.createElement('span');
-            line.id = 'line-' + i;
+            line.id = `line-${i}`;
             line.classList.add("lyric-line");
             line.setAttribute('start-time',lyric[i][0][1]);
             line.setAttribute('lyric-mode','normal');
@@ -1591,7 +1762,7 @@ Selected.prototype = {
                 var letter = document.createElement('span');
                 letter.style.backgroundClip = "text";
                 letter.style.webkitBackgroundClip = "text";
-                letter.id = line.id + '-' + j;
+                letter.id = `${line.id}-${j}`;
                 letter.textContent = lyric[i][j][0];
                 // letter.setAttribute('start-time',lyric[i][j][1]);
                 // letter.setAttribute('end-time',lyric[i][j][2]);
@@ -1639,15 +1810,15 @@ Selected.prototype = {
                 if (i == l || this.audio.currentTime <= this.lyric[i][0] - 0.50){
                     if(i > 0) i--;
 
-                    // console.log("find at " + i);
+                    // console.log("find at ${i}");
 
                     if(i > 1 && this.lyric[i][0] == this.lyric[i-1][0]){
                         i--;
                     }
 
-                    var line = document.getElementById('line-' + i);
+                    var line = document.getElementById(`line-${i}`);
                     //randomize the color of the current line of the lyric
-                    line.className = 'current-line-' + this.lyricStyleList[this.lyricStyle];
+                    line.className = `current-line-${this.lyricStyleList[this.lyricStyle]}`;
 
                     if(i != this.last){
                         this.last=i;
@@ -1668,34 +1839,35 @@ Selected.prototype = {
                     if(lyric_for_API.length == 0)lyric_for_API = " ";
 
                     //sync MediaSession API
-                    this.mediaSessionAPI(this.audio_name[this.currentIndex+1],lyric_for_API);
+                    this.mediaSessionAPI(this.audio_name[this.currentIndex],lyric_for_API);
 
                     // sync pipWindow
                     pipWindow.fill(lyric_for_API,text_translate);
 
                     //del the color of which lyric after this.
                     for(var j = i + 1 ; j<l ; j++){
-                        var line = document.getElementById('line-' + j);
+                        var line = document.getElementById(`line-${j}`);
                         line.className='';
+                        line.classList.add("lyric-line");
                     }
                     
                     break;
                 }else{
                     try{
-                        var line = document.getElementById('line-' + i);
+                        var line = document.getElementById(`line-${i}`);
                         line.className = '';
                         line.classList.add("lyric-line");
                     }catch{
-                        console.error("error on #" + i);
+                        console.error(`error on #${i}`);
                     }
                 }
             }
         }catch(error){
-            console.error("ERROR:" + error);
+            console.error(`ERROR:${error}`);
         }
     },
     syncLyricXrc: function(){
-        this.lyricContainer.classList.add('current-line-xrc-' + this.lyricStyleList[this.lyricStyle]);
+        this.lyricContainer.classList.add(`current-line-xrc-${this.lyricStyleList[this.lyricStyle]}`);
         try{
             if(!this.lyric)return;
             // preload by 0.25s.
@@ -1705,7 +1877,7 @@ Selected.prototype = {
                 //find the line
                 if(currentTime <= lyricInline[lyricInline.length - 1][2] + 0.25){
 
-                    var line = document.getElementById('line-' + i);
+                    var line = document.getElementById(`line-${i}`);
 
                     line.classList.add('current-line');
 
@@ -1722,35 +1894,33 @@ Selected.prototype = {
                         this.last = i;
                     }
                     if(currentTime < lyricInline[0][1]){
-                        this.mediaSessionAPI(this.audio_name[this.currentIndex+1],' ');
-                        // pipWindow.fillXrc(document.getElementById('line-' + i));
+                        this.mediaSessionAPI(this.audio_name[this.currentIndex],' ');
                     }else{
-                        this.mediaSessionAPI(this.audio_name[this.currentIndex+1],line.getAttribute("word"));
-                        // pipWindow.fillXrc(document.getElementById('line-' + i));
+                        this.mediaSessionAPI(this.audio_name[this.currentIndex],line.getAttribute("word"));
                     }
                     
                     for(var j = 0 ; j < lyricInline.length ; j++){
 
-                        var letter = document.getElementById('line-' + i + '-' + j);
+                        var letter = document.getElementById(`line-${i}-${j}`);
 
                         if(currentTime > lyricInline[j][2]) {
-                            letter.classList.add('current-line-xrc-played-' + this.lyricStyleList[this.lyricStyle]);
-                            letter.classList.remove('current-line-xrc-playing-' + this.lyricStyleList[this.lyricStyle]);
+                            letter.classList.add(`current-line-xrc-played-${this.lyricStyleList[this.lyricStyle]}`);
+                            letter.classList.remove(`current-line-xrc-playing-${this.lyricStyleList[this.lyricStyle]}`);
                         } else {
                             if(currentTime < lyricInline[j][1]){
                                 break;
                             }
 
-                            letter.classList.add('current-line-xrc-playing-' + this.lyricStyleList[this.lyricStyle]);
+                            letter.classList.add(`current-line-xrc-playing-${this.lyricStyleList[this.lyricStyle]}`);
 
                             if(this.lastXrcLetterI != i || this.lastXrcLetterJ != j){
                                 letter.style.animationName = "lyric_sync_letter";
                                 letter.style.animationTimingFunction = "linear";
-                                letter.style.animationDuration = (lyricInline[j][2] - lyricInline[j][1]) + 's';
+                                letter.style.animationDuration = `${(lyricInline[j][2] - lyricInline[j][1]) * (1 / this.audio.playbackRate)}s`;
                                 this.lastXrcLetterI = i;
                                 this.lastXrcLetterJ = j;
 
-                                pipWindow.fillXrc(document.getElementById('line-' + this.lastXrcLetterI));
+                                pipWindow.fillXrc(document.getElementById(`line-${this.lastXrcLetterI}`));
                             }
 
                             break;
@@ -1761,38 +1931,38 @@ Selected.prototype = {
 
                     for(i++ ; i < this.lyric.length ; i++) {
                         try {
-                            var line = document.getElementById('line-' + i);
+                            var line = document.getElementById(`line-${i}`);
                             line.className = '';
                             line.classList.add("lyric-line");
-                            document.getElementById("line-" + i).classList.add('current-line-xrc');
+                            document.getElementById(`line-${i}`).classList.add('current-line-xrc');
                             line.style = '';
                             Array.from(line.getElementsByTagName('span')).forEach(span => {
                                 span.className = '';
                                 span.style = 'background-clip: text';
                             });
                         } catch {
-                            console.error("error on #" + j);
+                            console.error(`error on #${j}`);
                         }
                     }
                     break;
                 } else {
                     try {
-                        var line = document.getElementById('line-' + i);
+                        var line = document.getElementById(`line-${i}`);
                         line.className = '';
                         line.classList.add("lyric-line");
                         line.style = '';
-                        document.getElementById("line-" + i).classList.add('current-line-xrc');
+                        document.getElementById(`line-${i}`).classList.add('current-line-xrc');
                         Array.from(line.getElementsByTagName('span')).forEach(span => {
                             span.className = '';
                             span.style = 'background-clip: text';
                         });
                     } catch {
-                        console.error("error on #" + i);
+                        console.error(`error on #${i}`);
                     }
                 }
             }
         }catch(error){
-            console.error("ERROR:" + error);
+            console.error(`ERROR:${error}`);
         }
     },
     syncLyric: function(){
@@ -1928,9 +2098,21 @@ Selected.prototype = {
             // Convert it to Int.
             offset = parseInt(offset_str);
         } catch (err) {
-            // alert("offset error: "+err.message);
+            // alert("offset error: ${err.message}");
             offset = 0;
         }return offset;
+    },
+    download: function(id){
+        if(!id){
+            id = this.currentIndex;
+        }
+        var allSongs = this.playlist.children[0].children;
+        var songName = allSongs[id].children[0].getAttribute('data-name');
+        var link = document.createElement('a');
+        link.href = `music/${songName}.mp3`;
+        link.download = `${songName}.mp3`;
+        link.target = '_blank';
+        link.click();
     }
 };
 
