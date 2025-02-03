@@ -353,6 +353,11 @@ html.colorBg {
 /* mobile */
 @media screen and (max-width: 768px) {
 
+    #controlButtons .piece {
+        position: relative;
+        right: 30px;
+    }
+
     #configButton {
         position: fixed;
         z-index: 9999999999999;
@@ -491,7 +496,13 @@ html.colorBg {
     }
 }
 /* PC */
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 769px) {
+
+    /* #controlButtons .piece {
+        position: relative;
+        right: 0;
+    } */
+
     #lyricWrapper {
         /* for test */
         /* background-color: #A6E22D; */
@@ -1021,6 +1032,7 @@ html.colorBg {
 }
 #volumeConfig {
     top: -200px;
+    right: -7px;
 }
 #playbackRateConfig {
     top: -200px;
