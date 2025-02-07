@@ -353,6 +353,10 @@ html.colorBg {
 /* mobile */
 @media screen and (max-width: 768px) {
 
+    #controlButtons button {
+        width: 20px;
+    }
+
     #controlButtons .piece {
         position: relative;
         right: 30px;
@@ -1011,7 +1015,7 @@ html.colorBg {
 #playbackRateButton {
     height: 26px;
     padding: 0;
-    width: 40px;
+    width: 40px !important;
     text-align: center;
     font-size: 12px;
     color: #999999;

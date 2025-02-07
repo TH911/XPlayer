@@ -107,13 +107,6 @@ function initAudioEvent(index) {
         else audio.pause();
     }, false);
 
-    //enable keyboard control , spacebar to play and pause
-    window.addEventListener('keydown', function(e) {
-        if (e.key == ' ') {
-            if (audio.paused)audio.play();
-            else audio.pause();
-        }
-    }, false);
 
     // change the time when click the progress bar
     // PS：DON'T USE CLICK，or The drag progress point event below may trigger here, and at this point, the value of e.offsetX is very small, which can cause the progress bar to pop back to the beginning (unbearable!!)
@@ -328,10 +321,6 @@ function search_hide(){
     }
 }
 
-document.addEventListener('keydown', function(event) {
-    //prevent default spacebar behavior (for spacebar to control play/pause)
-    if(event.key === ' ')event.preventDefault();
-})
 
 //the menu of fontfamily,fontsize,background-img,...
 $(document).ready(function() {
@@ -532,7 +521,7 @@ pipWindowMode.prototype = {
 
         this.document.head.innerHTML = document.head.innerHTML;
         var link = document.createElement('link');
-        link.innerHTML = '<link rel="stylesheet" href="css/pipWindow.css">'
+        link.innerHTML = '<link rel="stylesheet" href="css/pipWindow.min.css">'
         this.document.head.appendChild(link);
         this.document.body.style.fontFamily = localStorage.getItem("player_font");
 
@@ -791,6 +780,7 @@ window.addEventListener('load', function(){
         var mouseDown = false,select = null;
         function down(event){
             if(volumeConfig.style.display != 'block'){
+                displayNoneSet = false;
                 return;
             }
             if(!progress.contains(event.target)){
@@ -892,6 +882,7 @@ window.addEventListener('load', function(){
         var mouseDown = false,select = null;
         function down(event){
             if(playbackRateConfig.style.display != 'block'){
+                displayNoneSet = false;
                 return;
             }
             if(!progress.contains(event.target)){
@@ -1191,7 +1182,7 @@ Selected.prototype = {
             }
             // especially,lrc.
             if(that.lyricMode == 'lrc'){
-                that.audio.currentTime = that.lyric[item.id.substring(5)][0];
+                that.audio.currentTime = that.lyric[item.id.substring(5)][0] / 1000;
                 that.audio.play();
                 if(mouseState == 'scroll' && new Date().getTime() - mouseStateTime > 1500) {
                     if(!mouseTouchStart) {
@@ -1226,7 +1217,7 @@ Selected.prototype = {
             }
 
             if(item.getAttribute('lyric-mode') == "translate"){
-                that.audio.currentTime = item.getAttribute('start-time');
+                that.audio.currentTime = item.getAttribute('start-time') / 1000;
                 that.audio.play();
                 if(mouseState == 'scroll' && new Date().getTime() - mouseStateTime > 1500) {
                     if(!mouseTouchStart) {
@@ -1238,7 +1229,7 @@ Selected.prototype = {
                 }
                 console.log("change currentTime when click.(translateLyric)");
             }else{
-                that.audio.currentTime = item.getAttribute("start-time");
+                that.audio.currentTime = item.getAttribute("start-time") / 1000;
                 that.audio.play();
                 if(mouseState == 'scroll' && new Date().getTime() - mouseStateTime > 1500) {
                     if(!mouseTouchStart) {
@@ -1358,9 +1349,9 @@ Selected.prototype = {
 
         this.play(randomSong);
     },
-    keyboardCtrl: function(e) {
+    keyboardCtrl: function(event) {
         var that = PLAYER;
-        if(e.ctrlKey){
+        if(event.ctrlKey){
             function addVolume(add){
                 var volumeConfig = document.getElementById("volumeConfig");
                 var progress = volumeConfig.getElementsByClassName("bar-bg")[0];
@@ -1382,12 +1373,12 @@ Selected.prototype = {
                 var dot = volumeConfig.getElementsByClassName('dot')[0];
                 dot.style.top = `calc(${(1-ratio)*100}% - 5px)`;
             }
-            if(e.code == 'ArrowUp'){
+            if(event.code == 'ArrowUp'){
                 addVolume(0.1);
-            }else if(e.code == 'ArrowDown'){
+            }else if(event.code == 'ArrowDown'){
                 addVolume(-0.1);
             }
-        }else if(e.altKey){
+        }else if(event.altKey){
             function addPlaybackRate(add){
                 var playbackRateButton = document.getElementById("playbackRateButton");
                 var playbackRateConfig = document.getElementById("playbackRateConfig");
@@ -1412,18 +1403,23 @@ Selected.prototype = {
                 bar.style.top = `${(1-ratio)*100}%`;
                 dot.style.top = `calc(${(1-ratio)*100}% - 5px)`;
             }
-            if(e.code == 'ArrowUp'){
+            if(event.code == 'ArrowUp'){
                 addPlaybackRate(0.05);
-            }else if(e.code == 'ArrowDown'){
+            }else if(event.code == 'ArrowDown'){
                 addPlaybackRate(-0.05);
             }
         }else{
-            if(e.code == 'ArrowUp')that.playPrev();
-            else if(e.code == 'ArrowDown')that.playNext();
-            else if(e.code == 'ArrowLeft'){
-                that.audio.currentTime -= Math.min(Song.currentTime,10);
-            }else if(e.code == 'ArrowRight'){
+            if(event.code == 'ArrowUp'){
+                that.playPrev();
+            }else if(event.code == 'ArrowDown'){
+                that.playNext();
+            }else if(event.code == 'ArrowLeft'){
+                that.audio.currentTime -= Math.min(that.audio.currentTime,10);
+            }else if(event.code == 'ArrowRight'){
                 that.audio.currentTime += 10;
+            }else if(event.key == ' '){
+                if(that.audio.paused)that.audio.play();
+                else that.audio.pause();
             }
             // close volumeConfig
             document.getElementById("volumeConfig").style.display = 'none';
@@ -1457,12 +1453,13 @@ Selected.prototype = {
         });
         ol.appendChild(fragment);
     },
-    mediaSessionAPI(name,lyric){
+    mediaSessionAPI: function(lyric){
         var that = this;
         // https://stackoverflow.com/questions/44418606/how-do-i-set-a-thumbnail-when-playing-audio-in-ios-safari
         if ('mediaSession' in navigator) {
+            var title = `${this.audio_name[this.currentIndex]} - ${this.audio_artist[this.currentIndex]}`;
             navigator.mediaSession.metadata = new MediaMetadata({
-                title: name,
+                title: title,
                 artist: lyric,
                 artwork: [
                 { src: that.cover_img.src }
@@ -1565,7 +1562,7 @@ Selected.prototype = {
         document.getElementById('songinfo_album').textContent = `专辑: ${this.audio_album[this.currentIndex]}`;
         this.duration = this.audio_duration[this.currentIndex];
 
-        this.mediaSessionAPI(this.audio_name[this.currentIndex],' ');
+        this.mediaSessionAPI(' ');
 
         var screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
         this.lyricContainer.style.top = Math.floor((screenHeight-100)*0.4);
@@ -1628,7 +1625,7 @@ Selected.prototype = {
             time.forEach(function(v1, i1, a1) {
                 //convert the [min:sec] to secs format then store into result
                 var t = v1.slice(1, -1).split(':');
-                result.push([parseInt(t[0], 10) * 60 + parseFloat(t[1]) + parseInt(offset) / 1000, value]);
+                result.push([(parseInt(t[0], 10) * 60 + parseFloat(t[1]) + parseInt(offset)) * 1000, value]);
             });
         });
         //sort the result by time
@@ -1678,9 +1675,9 @@ Selected.prototype = {
                 for(var i = 0;i < str.length ;i++){
                     const word = lyricsText.substring((i > 0 ? str[i-1].index + str[i-1][0].length : 0),str[i].index);
                     const time = str[i][0].match(/-?\d+/g);
-                    // ms -> s
-                    const start = parseInt(time[0]) / 1000;
-                    const end = (parseInt(time[0]) + parseInt(time[1]) - 1) / 1000;
+                    // ms
+                    const start = parseInt(time[0]);
+                    const end = (parseInt(time[0]) + parseInt(time[1]) - 1);
             
                     inline.push([word, start, end]);
                 }
@@ -1777,7 +1774,7 @@ Selected.prototype = {
 
                 var minus = Math.abs(lyric[i][0][1] - lyricTranslate[pointer][0]);
 
-                if(minus <= 1) {
+                if(minus <= 1000) {
                     var line_p = document.createElement('p');
                     var line = document.createElement('span');
                     line.textContent = lyricTranslate[pointer++][1];
@@ -1805,9 +1802,10 @@ Selected.prototype = {
         this.lyricContainer.className = '';
         try{
             if(!this.lyric)return;
+            var currentTime = this.audio.currentTime * 1000 + 500;
             for (var i = 0, l = this.lyric.length; i <= l; i++) {
                 //preload the lyric by 0.50s || end
-                if (i == l || this.audio.currentTime <= this.lyric[i][0] - 0.50){
+                if (i == l || currentTime <= this.lyric[i][0] ){
                     if(i > 0) i--;
 
                     // console.log("find at ${i}");
@@ -1839,7 +1837,7 @@ Selected.prototype = {
                     if(lyric_for_API.length == 0)lyric_for_API = " ";
 
                     //sync MediaSession API
-                    this.mediaSessionAPI(this.audio_name[this.currentIndex],lyric_for_API);
+                    this.mediaSessionAPI(lyric_for_API);
 
                     // sync pipWindow
                     pipWindow.fill(lyric_for_API,text_translate);
@@ -1871,7 +1869,7 @@ Selected.prototype = {
         try{
             if(!this.lyric)return;
             // preload by 0.25s.
-            var currentTime = this.audio.currentTime + 0.25;
+            var currentTime = this.audio.currentTime * 1000 + 250;
             for (var i = 0 ; i < this.lyric.length; i++) {
                 var lyricInline = this.lyric[i];
                 //find the line
@@ -1893,10 +1891,8 @@ Selected.prototype = {
                         }
                         this.last = i;
                     }
-                    if(currentTime < lyricInline[0][1]){
-                        this.mediaSessionAPI(this.audio_name[this.currentIndex],' ');
-                    }else{
-                        this.mediaSessionAPI(this.audio_name[this.currentIndex],line.getAttribute("word"));
+                    if(currentTime >= lyricInline[0][1]){
+                        this.mediaSessionAPI(line.getAttribute("word"));
                     }
                     
                     for(var j = 0 ; j < lyricInline.length ; j++){
@@ -1916,7 +1912,7 @@ Selected.prototype = {
                             if(this.lastXrcLetterI != i || this.lastXrcLetterJ != j){
                                 letter.style.animationName = "lyric_sync_letter";
                                 letter.style.animationTimingFunction = "linear";
-                                letter.style.animationDuration = `${(lyricInline[j][2] - lyricInline[j][1]) * (1 / this.audio.playbackRate)}s`;
+                                letter.style.animationDuration = `${(lyricInline[j][2] - lyricInline[j][1]) * (1 / this.audio.playbackRate)}ms`;
                                 this.lastXrcLetterI = i;
                                 this.lastXrcLetterJ = j;
 
@@ -2110,7 +2106,7 @@ Selected.prototype = {
         var songName = allSongs[id].children[0].getAttribute('data-name');
         var link = document.createElement('a');
         link.href = `music/${songName}.mp3`;
-        link.download = `${songName}.mp3`;
+        link.download = `${allSongs[id].children[0].textContent}.mp3`;
         link.target = '_blank';
         link.click();
     }
